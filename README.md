@@ -2,9 +2,13 @@
 
 《燃燈劫》/ **LAMPBLACK: Rebirth of Ruin** 的官方宣傳網站。
 
-- 正式網址：https://thelampblack.com
-- 主機：Cloudflare Pages（免費方案，流量無上限）
+- 正式網址：**https://thelampblack.com**（2026-08-14 上線）
+- 主機：Cloudflare **Worker（靜態資源模式）**，專案名 `dipanproj-website`
+- 臨時網址：`dipanproj-website.kazusa1000.workers.dev`
 - 網域：Cloudflare Registrar
+
+> 🧯 **遇到怪問題、或做任何 Cloudflare 設定之前，先讀 [PROBLEMS.md](PROBLEMS.md)。**
+> 之後每踩到一個新坑，也請在那裡加一則（症狀 → 原因 → 解法）。
 
 ---
 
@@ -100,24 +104,77 @@ ffmpeg -ss 10 -i public/video/teaser.mp4 -frames:v 1 /tmp/poster.png
 
 ## 部署
 
-接上 GitHub 之後，**`git push` 就會自動部署**，不用做任何額外動作。
+**改檔案 → commit → push 到 `main`，Cloudflare 會自動重新部署**，約一分鐘生效。
+不用進後台，不用手動打包。
 
-Cloudflare Pages 專案設定（建立時填一次）：
+```bash
+git add .
+git commit -m "調整某某"
+git push
+```
 
-| 欄位 | 值 |
+### 目前的線上設定（建立時填過一次，平常不用動）
+
+| 項目 | 值 |
 |---|---|
-| Framework preset | None |
+| GitHub repo | `sorrowslee/DipanProj_WebSite` |
+| Production branch | `main` |
 | Build command | （留空） |
-| Build output directory | `public` |
+| Deploy command | `npx wrangler deploy` |
 | Root directory | `/` |
+| 發布資料夾 | `public` |
 
-因為是純靜態網站沒有建置步驟，Build command 一定要留空。
+⚠️ **「發布 `public/`」這個設定只存在 Cloudflare 後台，沒有寫進 repo**（詳見 PROBLEMS.md W3）。
+如果哪天要重建專案，記得重設，否則會把整個 repo 含原始素材一起發布出去。
+
+### 自訂網域
+
+在 Worker 頁面**上方的 Domains 分頁**（不是 Settings）→ `Add Domain`。
+
+- `thelampblack.com` — 綁定 Worker（DNS 記錄型別顯示為 `Worker`）
+- `www.thelampblack.com` — CNAME（Proxied）＋ Redirect Rule 做 301 轉址到根網域
+  （**兩步都要做，只加 DNS 會 522**，詳見 PROBLEMS.md W2）
+
+---
+
+## 網域的 email 防偽造設定
+
+這個網域**不寄信**，所以加了三筆 TXT 記錄防止有人偽造 `@thelampblack.com` 的寄件地址：
+
+| Name | Type | Content | 作用 |
+|---|---|---|---|
+| `@` | TXT | `v=spf1 -all` | 宣告沒有任何伺服器有資格用這個網域寄信 |
+| `_dmarc` | TXT | `v=DMARC1; p=reject; sp=reject;` | 要求收信方直接拒收驗證失敗的信 |
+| `*._domainkey` | TXT | `v=DKIM1; p=` | 宣告所有 DKIM 金鑰無效，堵住繞過手法 |
+
+**刻意沒有加 Null MX**（`MX` 指向 `.`）。那筆會讓網域完全無法收信，
+但之後 Steam 上架要填聯絡信箱、媒體和玩家也要能寄信給你，加了會很麻煩。
+上面三筆只擋「偽造寄信」，完全不影響「收信」。
+
+### 之後想要 contact@thelampblack.com 的話
+
+用 **Cloudflare Email Routing**（免費），可以把信自動轉到 Gmail，
+不用另外開信箱。設定時它會自動處理 MX 和 SPF。
+
+⚠️ 如果之後改成**真的要用這個網域寄信**（不只是轉信），
+記得回頭把第一筆 SPF 的 `-all` 改掉，否則你自己寄的信會被當成偽造退回。
 
 ---
 
 ## 待辦
 
-- [ ] Steam 願望清單連結（`public/index.html` 搜尋「加入願望清單」）
-- [ ] 開發日誌連結
+- [ ] Steam 願望清單連結（`public/index.html` 搜尋「加入願望清單」，目前是 `href="#"`）
+- [ ] 開發日誌連結（同上）
 - [ ] 英文標題 logo 重製（遊戲內 `TitlePanel_EN.png` 仍寫著舊名 Burning Lamp）
-- [ ] 之後若要自架字體，把 Google Fonts 換成本地檔案
+- [ ] 之後若要自架字體，把 Google Fonts 換成本地檔案（現在依賴外部 CDN）
+- [ ] 驗證 `_headers` 在 Workers 靜態資源模式下是否真的生效
+- [ ] 補一份 wrangler 設定檔，把「發布 `public/`」寫進版控
+
+---
+
+## 給接手的人／AI
+
+- 動 Cloudflare 設定前先讀 [PROBLEMS.md](PROBLEMS.md)，裡面是實際踩過的坑
+- 網站是**單一 HTML 檔**，CSS 和 JS 都內嵌在 `public/index.html` 裡，沒有框架、沒有建置流程
+- 雙語靠 HTML 屬性 `data-zh` / `data-en` ＋ 底部一小段 JS 切換，加新文字時**兩個屬性都要寫**
+- 改完務必用本機伺服器實測（見上面「本地預覽」），不要只看編輯器
