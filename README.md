@@ -35,9 +35,12 @@ DipanProj_WebSite/
 │   └── 影片/
 │
 ├── tools/
+│   ├── dev-server.js         ← 本地預覽伺服器（npm run dev）
 │   ├── build_assets.py       ← 把 遊戲內資源/截圖/ 壓成 public/assets/
 │   ├── build_devlog.py       ← 從主專案 git 紀錄產生 public/devlog.html
 │   └── devlog_template.html  ← 開發日誌的版型與里程碑文案
+│
+├── package.json
 │
 ├── .gitignore
 └── README.md
@@ -50,18 +53,29 @@ DipanProj_WebSite/
 
 ## 本地預覽
 
-**要從 `public/` 目錄啟動伺服器**，不然路徑會對不上：
-
 ```bash
-cd ~/Documents/workspaces/myProject/DipanProj_WebSite/public
-python3 -m http.server 8000
+npm run dev
 ```
 
-然後開 http://localhost:8000
+**就這樣，不用記網址、不用 `npm install`。** 它會自己：
 
-停止：`Ctrl + C`。改完檔案重新整理即可，沒有建置步驟。
+- 從 `public/` 提供網站
+- 找一個沒被佔用的埠（預設 8000，被佔就往上找 8001、8002…）
+- 自動用預設瀏覽器打開
 
-> 不要直接按兩下開 `index.html`。`file://` 模式下影片播放、favicon、localStorage 都會出問題。
+停止：`Ctrl + C`。改完檔案重新整理瀏覽器即可，沒有建置步驟。
+
+伺服器是 `tools/dev-server.js`，**零依賴、只用 Node 內建模組**，所以不需要 `node_modules`。
+它支援 Range 請求（Safari 才能正常拖曳影片進度條），HTML 一律 `no-store`（改完一定看得到新版）。
+
+> 不要直接按兩下開 `index.html`。`file://` 模式下影片播放、favicon、語言記憶都會出問題。
+
+### 其他指令
+
+```bash
+npm run assets   # 重新壓縮 遊戲內資源/截圖/ → public/assets/
+npm run devlog   # 從主專案 git 紀錄重新產生 public/devlog.html
+```
 
 ---
 
@@ -72,13 +86,31 @@ python3 -m http.server 8000
 3. 跑腳本：
 
 ```bash
-python3 tools/build_assets.py
+npm run assets
 ```
 
-4. 到 `public/index.html` 的 `<div class="grid">` 區塊加一行：
+4. 到 `public/index.html` 加對應的區塊：
+
+**武器**（橫向卷軸，`<div class="wrail">` 裡面）：
 
 ```html
-<figure><img src="assets/shot_名字.webp" alt="" loading="lazy"></figure>
+<article class="wcard"><img src="assets/w_名字.webp" alt="" loading="lazy">
+  <div class="wmeta"><h3 data-zh="中文名" data-en="English"></h3>
+  <p data-zh="中文一句話" data-en="English one-liner"></p></div></article>
+```
+
+**場景**（交錯排版，`<div class="scenes">` 裡面）：
+偶數順位要加 `alt` 這個 class 才會左右交錯，編號也要接續。
+
+```html
+<div class="scene rv">
+  <div class="scene-img"><img src="assets/sc_名字.webp" alt="" loading="lazy"></div>
+  <div class="scene-txt">
+    <div class="idx">05</div>
+    <h3 data-zh="中文名" data-en="English"></h3>
+    <p data-zh="中文描述" data-en="English description"></p>
+  </div>
+</div>
 ```
 
 腳本會自動壓成 WebP、裁掉截圖邊緣的黑色信箱框。需要 Pillow：`pip3 install Pillow`
@@ -111,7 +143,7 @@ ffmpeg -ss 10 -i public/video/teaser.mp4 -frames:v 1 /tmp/poster.png
 開發日誌頁 `public/devlog.html` 是**自動產生的，不要直接手改**（下次重跑會被覆蓋）。
 
 ```bash
-python3 tools/build_devlog.py
+npm run devlog
 ```
 
 它會讀取 `../DipanProj` 的 git 紀錄（唯讀，只跑 `git log --no-optional-locks`，
@@ -197,9 +229,10 @@ git push
 
 ## 待辦
 
-- [ ] Steam 願望清單連結（`public/index.html` 搜尋「加入願望清單」，目前是 `href="#"`）
-- [ ] 開發日誌連結（同上）
-- [ ] 英文標題 logo 重製（遊戲內 `TitlePanel_EN.png` 仍寫著舊名 Burning Lamp）
+- [ ] Steam 頁面上線後，把 `public/index.html` 的 `#wishBtn` 從 `<button>` 換回 `<a href="Steam網址">`
+      （目前點下去只會浮出「Steam 頁面籌備中」提示）
+- [ ] 英文標題 logo 重製（遊戲內 `TitlePanel_EN.png` 仍寫著舊名 Burning Lamp；
+      現在英文版標題是用 CSS 排的字，不是圖）
 - [ ] 之後若要自架字體，把 Google Fonts 換成本地檔案（現在依賴外部 CDN）
 - [ ] 驗證 `_headers` 在 Workers 靜態資源模式下是否真的生效
 - [ ] 補一份 wrangler 設定檔，把「發布 `public/`」寫進版控
@@ -211,4 +244,5 @@ git push
 - 動 Cloudflare 設定前先讀 [PROBLEMS.md](PROBLEMS.md)，裡面是實際踩過的坑
 - 網站是**單一 HTML 檔**，CSS 和 JS 都內嵌在 `public/index.html` 裡，沒有框架、沒有建置流程
 - 雙語靠 HTML 屬性 `data-zh` / `data-en` ＋ 底部一小段 JS 切換，加新文字時**兩個屬性都要寫**
+- **不要讓遊戲截圖可以點擊放大**（原本有燈箱，後來移除了）——原圖解析度不夠，放大會露出破綻
 - 改完務必用本機伺服器實測（見上面「本地預覽」），不要只看編輯器

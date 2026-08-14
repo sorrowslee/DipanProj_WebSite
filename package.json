@@ -1,0 +1,13 @@
+{
+  "name": "lampblack-site",
+  "version": "1.0.0",
+  "private": true,
+  "description": "《燃燈劫》LAMPBLACK: Rebirth of Ruin 官方網站",
+  "homepage": "https://thelampblack.com",
+  "scripts": {
+    "dev": "node tools/dev-server.js",
+    "start": "node tools/dev-server.js",
+    "assets": "python3 tools/build_assets.py",
+    "devlog": "python3 tools/build_devlog.py"
+  }
+}

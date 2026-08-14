@@ -190,6 +190,8 @@ html[lang="en"] .head h2{font-family:var(--display);font-weight:500;
 .solo{text-align:center;max-width:720px;margin:0 auto}
 .solo .num{font-weight:300;font-size:clamp(96px,17vw,190px);line-height:1;
   color:var(--ember);text-shadow:0 0 70px rgba(255,143,77,.42);margin-bottom:34px}
+html[lang="en"] .solo .num{font-family:var(--display);font-weight:500;
+  font-size:clamp(76px,13vw,150px);letter-spacing:.12em;margin-left:.12em}
 .solo p{font-size:clamp(16px,2.1vw,21px);line-height:2.4;color:rgba(248,241,233,.9)}
 .solo p.small{margin-top:1.1em;font-size:clamp(13px,1.6vw,16px);color:var(--muted)}
 
@@ -208,17 +210,21 @@ html[lang="en"] .head h2{font-family:var(--display);font-weight:500;
 .four{display:grid;grid-template-columns:repeat(4,1fr);gap:clamp(16px,2.2vw,26px);max-width:1180px;margin:0 auto}
 .card{background:var(--surface);border:1px solid var(--line);padding:32px 24px 36px;text-align:center}
 .card h3{font-weight:500;font-size:clamp(19px,2.2vw,24px);color:var(--ember-hi);
-  letter-spacing:.24em;margin-bottom:6px;text-shadow:0 0 24px rgba(255,143,77,.32)}
-.card .en{font-family:var(--display);font-size:11px;letter-spacing:.28em;
-  color:rgba(240,229,217,.34);text-transform:uppercase;margin-bottom:20px}
+  letter-spacing:.24em;text-shadow:0 0 24px rgba(255,143,77,.32)}
+html[lang="en"] .card h3{font-family:var(--display);font-size:clamp(16px,1.9vw,20px);
+  letter-spacing:.2em;text-transform:uppercase}
+/* 標題下的細線，取代原本的英文副標（避免中英混雜） */
+.card .cline{width:38px;height:1px;margin:16px auto 22px;
+  background:linear-gradient(90deg,transparent,rgba(255,160,95,.55),transparent)}
 .card p{font-size:clamp(13px,1.5vw,15px);line-height:2.1;color:var(--muted)}
 
 /* ---------- 武器橫向卷軸 ---------- */
-.wwrap{position:relative;max-width:1560px;margin:0 auto}
+/* 卷軸寬度＝內容欄寬度，卡片剛好排滿三張，左右兩側自然對齊其他區塊 */
+.wwrap{position:relative;max-width:1180px;margin:0 auto}
 .wrail{display:flex;gap:20px;overflow-x:auto;scroll-snap-type:x mandatory;
-  padding:6px max(24px,calc((100vw - 1180px)/2)) 22px;scrollbar-width:none;scroll-behavior:smooth}
+  padding:6px 0 22px;scrollbar-width:none;scroll-behavior:smooth}
 .wrail::-webkit-scrollbar{display:none}
-.wcard{flex:0 0 clamp(290px,42vw,470px);scroll-snap-align:center;
+.wcard{flex:0 0 calc((100% - 40px)/3);scroll-snap-align:start;
   background:var(--surface);border:1px solid var(--line);overflow:hidden}
 .wcard img{width:100%;aspect-ratio:16/9;object-fit:cover;filter:brightness(1) saturate(1.02);
   transition:transform 1.2s ease}
@@ -281,12 +287,9 @@ footer .fmark{width:22px;margin:0 auto 24px;opacity:.24}
 .toast.on{opacity:1;transform:translate(-50%,0)}
 @media(max-width:520px){.toast{white-space:normal;bottom:28px;padding:14px 22px}}
 
-/* ---------- 燈箱 ---------- */
-.lb{position:fixed;inset:0;z-index:300;background:rgba(9,7,6,.96);display:none;place-items:center;padding:32px;cursor:zoom-out}
-.lb.on{display:grid}
-.lb img{max-width:100%;max-height:92vh;object-fit:contain;box-shadow:0 0 90px rgba(0,0,0,.9)}
-
 @media(max-width:1000px){ .four{grid-template-columns:repeat(2,1fr)} }
+@media(max-width:900px){ .wcard{flex:0 0 calc((100% - 20px)/2)} }
+@media(max-width:620px){ .wcard{flex:0 0 100%} }
 @media(max-width:800px){
   .scene{grid-template-columns:1fr;gap:22px}
   .scene.alt .scene-img{order:0}
@@ -351,7 +354,7 @@ footer .fmark{width:22px;margin:0 auto 24px;opacity:.24}
 <!-- ============ 三次機會 ============ -->
 <section class="band">
   <div class="solo rv">
-    <div class="num">三</div>
+    <div class="num" data-zh="三" data-en="III"></div>
     <p data-zh="邪佛慈悲，給你三次機會。" data-en="In His mercy, He grants you three lives."></p>
     <p class="small" data-zh="第三次用完，就沒有下一次了。" data-en="Spend the third, and there is no fourth."></p>
   </div>
@@ -371,22 +374,22 @@ footer .fmark{width:22px;margin:0 auto 24px;opacity:.24}
 
   <div class="four">
     <div class="card rv">
-      <h3>抽取</h3><div class="en">Draw</div>
+      <h3 data-zh="抽取" data-en="Draw"></h3><div class="cline"></div>
       <p data-zh="向祂祈求，拿到什麼全憑天命&#10;不存在討價還價"
          data-en="Pray to Him. What you receive is not yours to choose.&#10;There is no bargaining."></p>
     </div>
     <div class="card rv">
-      <h3>鑲嵌</h3><div class="en">Socket</div>
+      <h3 data-zh="鑲嵌" data-en="Socket"></h3><div class="cline"></div>
       <p data-zh="鑲嵌能力珠。&#10;這是少數你能自己決定的事。"
          data-en="Set gems into your gear.&#10;One of the few things you decide for yourself."></p>
     </div>
     <div class="card rv">
-      <h3>強化</h3><div class="en">Forge</div>
+      <h3 data-zh="強化" data-en="Forge"></h3><div class="cline"></div>
       <p data-zh="輪迴並且變強&#10;直到終結一切"
          data-en="Return, and grow stronger&#10;until you can end it all."></p>
     </div>
     <div class="card rv">
-      <h3>血統</h3><div class="en">Bloodline</div>
+      <h3 data-zh="血統" data-en="Bloodline"></h3><div class="cline"></div>
       <p data-zh="厭倦了弱小的人類之身，&#10;有另外的捷徑"
          data-en="Tired of a weak human body?&#10;There is another road."></p>
     </div>
@@ -512,7 +515,6 @@ footer .fmark{width:22px;margin:0 auto 24px;opacity:.24}
   <div>© 2026 · thelampblack.com</div>
 </footer>
 
-<div class="lb" id="lb"><img id="lbimg" src="" alt=""></div>
 <div class="toast" id="toast" role="status" aria-live="polite"
      data-zh="Steam 頁面籌備中，敬請期待。"
      data-en="The Steam page is on its way. Please stay tuned."></div>
@@ -559,19 +561,6 @@ document.getElementById('wishBtn').addEventListener('click', () => {
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => TOAST.classList.remove('on'), 3000);
 });
-
-/* ---- 燈箱（武器與場景都可點開） ---- */
-const LB = document.getElementById('lb'), LBIMG = document.getElementById('lbimg');
-document.querySelectorAll('.wcard img, .scene-img img').forEach(img => {
-  img.style.cursor = 'zoom-in';
-  img.addEventListener('click', () => {
-    LBIMG.src = img.src; LB.classList.add('on');
-    document.body.style.overflow = 'hidden';
-  });
-});
-function closeLB(){ LB.classList.remove('on'); document.body.style.overflow=''; LBIMG.src=''; }
-LB.addEventListener('click', closeLB);
-document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLB(); });
 </script>
 </body>
 </html>
