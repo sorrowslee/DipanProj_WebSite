@@ -11,17 +11,16 @@
 
 # 建置／部署產物
 preview.html
+dist/
 .wrangler/
 node_modules/
-dist/
+
+# 傳輸／打包暫存
+*.tar.gz
+*.zip
+_to_delete/
 
 # 暫存
 *.log
 tmp/
-
-# 部署打包暫存
-*.tar.gz
-
-# 部署包
-dist/
-*.zip
+遊戲內資源/

@@ -1,0 +1,23 @@
+# Cloudflare Pages 會讀這個檔設定 HTTP 標頭。
+# 語法：路徑一行，底下縮排兩空格寫標頭。
+
+/*
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  X-Frame-Options: SAMEORIGIN
+
+# 圖片與影片：快取一天。
+# 注意：檔名沒有版本號，所以換圖後同名檔案在瀏覽器端最多可能延遲一天才更新。
+# 想立刻生效就改檔名（例如 shot_boss2.webp）。
+/assets/*
+  Cache-Control: public, max-age=86400
+
+/video/*
+  Cache-Control: public, max-age=86400
+
+# HTML 每次都跟伺服器確認，確保改版立刻看得到。
+/
+  Cache-Control: public, max-age=0, must-revalidate
+
+/index.html
+  Cache-Control: public, max-age=0, must-revalidate

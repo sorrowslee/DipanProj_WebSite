@@ -13,6 +13,9 @@
 <meta property="og:image" content="https://thelampblack.com/assets/shot_buddha.webp">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="theme-color" content="#07070a">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="512x512" href="/icon-512.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Noto+Serif+TC:wght@300;500;700&display=swap" rel="stylesheet">
@@ -115,6 +118,15 @@ section{position:relative}
   color:var(--ember);margin-bottom:22px;text-transform:uppercase}
 .head p{font-size:clamp(14px,1.7vw,17px);color:var(--muted);line-height:2.2}
 
+/* teaser */
+.teaser{padding:clamp(110px,15vh,170px) 24px}
+.player{position:relative;max-width:1000px;margin:0 auto}
+.player::before{content:"";position:absolute;inset:-40px;
+  background:radial-gradient(ellipse at center, rgba(255,110,40,.13), transparent 70%);
+  filter:blur(30px);pointer-events:none}
+.player video{position:relative;width:100%;display:block;background:#000;
+  box-shadow:0 0 0 1px rgba(238,232,226,.09), 0 40px 90px rgba(0,0,0,.6)}
+
 /* gallery */
 .gallery{padding:clamp(110px,15vh,170px) 0}
 .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;
@@ -214,13 +226,18 @@ footer .fmark{width:22px;margin:0 auto 26px;opacity:.16}
      data-en="The real thing waits in the tunnel behind him."></p>
 </section>
 
-<!-- PLATE 1 -->
-<section class="plate">
-  <div class="plate-bg"><img src="assets/shot_buddha.webp" alt="" loading="lazy"></div>
-  <div class="plate-txt">
-    <h2 data-zh="其一" data-en="I"></h2>
-    <p class="rv" data-zh="你以為那是一尊佛。&#10;等你走近，祂胸口的火會告訴你不是。"
-       data-en="You take it for a Buddha.&#10;Step closer, and the fire in its chest will tell you otherwise."></p>
+<!-- TEASER -->
+<section class="teaser">
+  <div class="head">
+    <h2 data-zh="預告片" data-en="Teaser"></h2>
+    <p class="rv" data-zh="三十秒。祂只說了四句話。"
+       data-en="Thirty seconds. He says only four things."></p>
+  </div>
+  <div class="player rv">
+    <video controls preload="metadata" playsinline
+           poster="assets/teaser_poster.webp">
+      <source src="video/teaser.mp4" type="video/mp4">
+    </video>
   </div>
 </section>
 
@@ -243,7 +260,7 @@ footer .fmark{width:22px;margin:0 auto 26px;opacity:.16}
 <section class="plate">
   <div class="plate-bg"><img src="assets/bride.webp" alt="" loading="lazy"></div>
   <div class="plate-txt">
-    <h2 data-zh="其二" data-en="II"></h2>
+    <h2 data-zh="其一" data-en="I"></h2>
     <p class="rv" data-zh="有些房間會認得你。&#10;即使這是你第一次推開那扇門。"
        data-en="Some rooms will recognise you —&#10;even the first time you open the door."></p>
   </div>
@@ -259,12 +276,13 @@ footer .fmark{width:22px;margin:0 auto 26px;opacity:.16}
   <div class="grid">
     <figure><img src="assets/shot_bride_talk.webp" alt="" loading="lazy"></figure>
     <figure><img src="assets/shot_boss.webp" alt="" loading="lazy"></figure>
+    <figure><img src="assets/shot_buddha.webp" alt="" loading="lazy"></figure>
+    <figure><img src="assets/shot_square.webp" alt="" loading="lazy"></figure>
     <figure><img src="assets/shot_hall.webp" alt="" loading="lazy"></figure>
     <figure><img src="assets/shot_banyan.webp" alt="" loading="lazy"></figure>
     <figure><img src="assets/shot_ritual.webp" alt="" loading="lazy"></figure>
     <figure><img src="assets/shot_forest.webp" alt="" loading="lazy"></figure>
     <figure><img src="assets/shot_ghosts.webp" alt="" loading="lazy"></figure>
-    <figure><img src="assets/shot_square.webp" alt="" loading="lazy"></figure>
   </div>
 </section>
 
@@ -272,7 +290,7 @@ footer .fmark{width:22px;margin:0 auto 26px;opacity:.16}
 <section class="plate">
   <div class="plate-bg"><img src="assets/fall.webp" alt="" loading="lazy"></div>
   <div class="plate-txt">
-    <h2 data-zh="其三" data-en="III"></h2>
+    <h2 data-zh="其二" data-en="II"></h2>
     <p class="rv" data-zh="帶不走的會被燒掉。&#10;活著回來，才算你的。"
        data-en="What you cannot carry is burned.&#10;Only what walks out with you is yours."></p>
   </div>

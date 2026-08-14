@@ -22,8 +22,8 @@ except ImportError:
     sys.exit("找不到 Pillow，請先執行：pip3 install Pillow")
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-SHOTS_DIR = os.path.join(ROOT, "截圖")
-OUT_DIR = os.path.join(ROOT, "assets")
+SHOTS_DIR = os.path.join(ROOT, "遊戲內資源", "截圖")
+OUT_DIR = os.path.join(ROOT, "public", "assets")
 
 # --- 調整這裡 ---
 SHOT_WIDTH = 1400      # 遊戲截圖輸出寬度（px）
