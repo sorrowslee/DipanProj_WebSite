@@ -1,0 +1,27 @@
+# macOS
+.DS_Store
+._*
+.Spotlight-V100
+.Trashes
+
+# 編輯器
+.vscode/
+.idea/
+*.swp
+
+# 建置／部署產物
+preview.html
+.wrangler/
+node_modules/
+dist/
+
+# 暫存
+*.log
+tmp/
+
+# 部署打包暫存
+*.tar.gz
+
+# 部署包
+dist/
+*.zip
