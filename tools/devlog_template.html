@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>開發日誌 — LAMPBLACK 燃燈劫</title>
+<meta name="description" content="《燃燈劫》LAMPBLACK 的開發歷程：從第一顆會動的黑點開始。">
+<link rel="canonical" href="https://thelampblack.com/devlog.html">
+<meta property="og:title" content="開發日誌 — LAMPBLACK 燃燈劫">
+<meta property="og:description" content="從第一顆會動的黑點開始。">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://thelampblack.com/devlog.html">
+<meta property="og:image" content="https://thelampblack.com/assets/dev03_homing_poster.webp">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#15110e">
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;700&family=Noto+Serif+TC:wght@300;500;700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#15110e;
+  --surface:rgba(255,238,220,.05);
+  --line:rgba(255,226,200,.11);
+  --text:rgba(248,242,235,.95);
+  --muted:rgba(240,229,217,.64);
+  --faint:rgba(240,229,217,.22);
+  --ember:#ff8f4d;
+  --ember-hi:#ffc189;
+  --serif:"Noto Serif TC",'Songti TC','Source Han Serif TC',serif;
+  --display:"Cinzel",'Noto Serif TC',serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:var(--serif);font-weight:300;
+  line-height:1.9;letter-spacing:.05em;overflow-x:hidden}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:
+    radial-gradient(1100px 700px at 50% -8%, rgba(255,140,60,.11), transparent 62%),
+    radial-gradient(800px 600px at 8% 55%,  rgba(255,110,50,.05), transparent 64%),
+    radial-gradient(800px 600px at 92% 88%, rgba(255,130,70,.045), transparent 64%)}
+body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:200;opacity:.18;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.5'/%3E%3C/svg%3E");
+  mix-blend-mode:overlay}
+img,video{display:block;max-width:100%}
+main,header,footer{position:relative;z-index:1}
+a{color:inherit}
+
+/* ---- 頂列 ---- */
+.top{position:fixed;top:0;left:0;right:0;z-index:150;display:flex;justify-content:space-between;
+  align-items:center;padding:16px 30px;
+  background:linear-gradient(180deg,rgba(21,17,14,.92),rgba(21,17,14,0));
+  backdrop-filter:blur(6px)}
+.back{font-size:clamp(12px,1.4vw,13.5px);letter-spacing:.2em;color:var(--muted);
+  text-decoration:none;transition:color .35s}
+.back:hover{color:var(--ember-hi)}
+.lang{display:flex;gap:2px;align-items:center;font-family:var(--display);font-size:12px;letter-spacing:.22em;
+  background:rgba(21,17,14,.55);border:1px solid var(--line);border-radius:2px;padding:2px 4px}
+.lang button{background:none;border:0;color:var(--muted);cursor:pointer;font:inherit;padding:6px 9px;transition:color .35s}
+.lang button:hover{color:var(--text)}
+.lang button.on{color:var(--ember-hi)}
+.lang span{color:var(--faint);font-size:10px}
+
+/* ---- 頁首 ---- */
+.phead{padding:clamp(130px,17vh,190px) 24px clamp(60px,8vh,90px);text-align:center;max-width:900px;margin:0 auto}
+.phead .kicker{font-family:var(--display);font-size:clamp(12px,1.5vw,14px);letter-spacing:.46em;
+  color:var(--ember-hi);text-transform:uppercase;margin-bottom:26px;
+  text-shadow:0 0 26px rgba(255,143,77,.5)}
+.phead h1{font-weight:500;font-size:clamp(32px,6vw,64px);letter-spacing:.2em;line-height:1.5;
+  color:rgba(252,247,242,.97);text-shadow:0 0 50px rgba(255,143,77,.2)}
+.phead .lead{margin-top:34px;font-size:clamp(15px,2vw,19px);line-height:2.3;color:rgba(248,241,233,.88)}
+.stats{display:flex;justify-content:center;gap:clamp(28px,6vw,72px);flex-wrap:wrap;
+  margin-top:clamp(44px,6vh,64px);padding-top:clamp(34px,5vh,48px);border-top:1px solid var(--line)}
+.stat{text-align:center}
+.stat b{display:block;font-weight:300;font-size:clamp(28px,4.4vw,44px);color:var(--ember);
+  line-height:1.2;text-shadow:0 0 40px rgba(255,143,77,.34)}
+.stat span{display:block;margin-top:10px;font-size:clamp(12px,1.4vw,13.5px);letter-spacing:.2em;color:var(--muted)}
+
+.rule{width:100%;max-width:1080px;margin:0 auto;height:1px;
+  background:linear-gradient(90deg,transparent,var(--line),transparent)}
+
+.rv{opacity:0;transform:translateY(22px);transition:opacity 1.1s ease,transform 1.1s ease}
+.rv.in{opacity:1;transform:none}
+
+/* ---- 里程碑影片 ---- */
+.miles{max-width:1000px;margin:0 auto;padding:clamp(80px,11vh,130px) 24px}
+.miles .shead{text-align:center;margin-bottom:clamp(50px,7vh,76px)}
+.miles .shead h2, .tlwrap > .shead h2{
+  display:inline-flex;align-items:center;justify-content:center;gap:clamp(14px,2vw,22px);
+  font-family:var(--serif);font-weight:500;font-size:clamp(15px,1.9vw,19px);letter-spacing:.32em;
+  color:var(--ember-hi);margin-bottom:22px;
+  text-shadow:0 0 26px rgba(255,143,77,.5),0 0 60px rgba(255,143,77,.25)}
+.miles .shead h2::before,.miles .shead h2::after,
+.tlwrap > .shead h2::before,.tlwrap > .shead h2::after{
+  content:"";display:block;width:clamp(26px,5vw,64px);height:1px;flex:none}
+.miles .shead h2::before,.tlwrap > .shead h2::before{background:linear-gradient(90deg,transparent,rgba(255,160,95,.6))}
+.miles .shead h2::after,.tlwrap > .shead h2::after{background:linear-gradient(90deg,rgba(255,160,95,.6),transparent)}
+html[lang="en"] .miles .shead h2, html[lang="en"] .tlwrap > .shead h2{
+  font-family:var(--display);font-size:clamp(12px,1.5vw,14px);letter-spacing:.4em;text-transform:uppercase}
+.miles .shead p{font-size:clamp(14px,1.7vw,17px);color:var(--muted)}
+.mile{margin-bottom:clamp(64px,9vh,104px)}
+.mile:last-child{margin-bottom:0}
+.mile .mtop{display:flex;align-items:baseline;gap:18px;margin-bottom:20px;flex-wrap:wrap}
+.mile .mdate{font-family:var(--display);font-size:13px;letter-spacing:.2em;color:var(--ember-hi);
+  padding:6px 14px;border:1px solid rgba(255,143,77,.45);background:rgba(255,143,77,.08)}
+.mile h3{font-weight:500;font-size:clamp(19px,2.6vw,27px);letter-spacing:.14em;color:rgba(252,247,242,.97)}
+.mile .mdesc{font-size:clamp(14px,1.7vw,16.5px);line-height:2.25;color:var(--muted);
+  margin-bottom:26px;max-width:760px}
+.vwrap{position:relative}
+.vwrap::before{content:"";position:absolute;inset:-34px;pointer-events:none;filter:blur(28px);
+  background:radial-gradient(ellipse at center, rgba(255,140,60,.16), transparent 70%)}
+.vwrap video{position:relative;width:100%;background:#0d0b09;
+  box-shadow:0 0 0 1px rgba(255,226,200,.13),0 28px 66px rgba(0,0,0,.6)}
+
+/* ---- 時間軸 ---- */
+.tlwrap{max-width:940px;margin:0 auto;padding:clamp(80px,11vh,130px) 24px clamp(60px,8vh,90px)}
+.tlwrap > .shead{text-align:center;margin-bottom:clamp(54px,8vh,84px)}
+.tlwrap > .shead p{font-size:clamp(14px,1.7vw,17px);color:var(--muted);line-height:2.1}
+
+.tl{position:relative;padding-left:clamp(22px,4vw,54px)}
+.tl::before{content:"";position:absolute;left:clamp(5px,1vw,14px);top:6px;bottom:0;width:1px;
+  background:linear-gradient(180deg,rgba(255,143,77,.55),rgba(255,143,77,.18) 40%,var(--line))}
+.tl-month{position:relative;margin-bottom:clamp(46px,6vh,72px)}
+.tl-month:last-child{margin-bottom:0}
+.mhead{position:relative;display:flex;align-items:baseline;gap:16px;margin-bottom:26px;flex-wrap:wrap}
+.mhead::before{content:"";position:absolute;left:calc(-1 * clamp(22px,4vw,54px) + clamp(5px,1vw,14px) - 5px);
+  top:.62em;width:11px;height:11px;border-radius:50%;
+  background:var(--ember);box-shadow:0 0 0 4px rgba(255,143,77,.16),0 0 22px rgba(255,143,77,.75)}
+.mnum{font-family:var(--display);font-size:clamp(20px,3vw,30px);letter-spacing:.16em;color:rgba(252,247,242,.95)}
+.mname{font-size:clamp(14px,1.6vw,16px);letter-spacing:.28em;color:var(--ember-hi);text-shadow:0 0 20px rgba(255,143,77,.35)}
+.mcount{margin-left:auto;font-family:var(--display);font-size:12.5px;letter-spacing:.14em;color:rgba(240,229,217,.34)}
+.mcount::after{content:" ×"}
+
+.tl-day{position:relative;display:grid;grid-template-columns:84px 1fr;gap:clamp(14px,2.4vw,30px);
+  padding:11px 0}
+.tl-day::before{content:"";position:absolute;
+  left:calc(-1 * clamp(22px,4vw,54px) + clamp(5px,1vw,14px) - 2px);
+  top:1.42em;width:5px;height:5px;border-radius:50%;background:rgba(255,180,120,.5)}
+.dchip{font-family:var(--display);font-size:13.5px;letter-spacing:.08em;color:var(--muted);
+  padding-top:.24em;white-space:nowrap}
+.dlist{list-style:none}
+.dlist li{position:relative;font-size:clamp(13.5px,1.6vw,15.5px);line-height:2.05;
+  color:rgba(244,236,227,.86);padding-left:16px}
+.dlist li::before{content:"";position:absolute;left:0;top:.95em;width:6px;height:1px;background:rgba(255,180,120,.5)}
+.dlist li + li{margin-top:5px}
+
+.note{max-width:940px;margin:clamp(40px,6vh,64px) auto 0;padding:0 24px;
+  font-size:clamp(12.5px,1.4vw,14px);letter-spacing:.1em;color:rgba(240,229,217,.4);
+  text-align:center;line-height:2.1}
+
+/* ---- 頁尾 ---- */
+.foot{text-align:center;padding:clamp(70px,10vh,110px) 24px 80px;border-top:1px solid var(--line)}
+.foot .btn{display:inline-block;padding:16px 42px;font-family:var(--display);font-size:12px;
+  letter-spacing:.28em;text-decoration:none;text-transform:uppercase;
+  border:1px solid rgba(255,143,77,.55);color:var(--ember-hi);background:rgba(255,143,77,.05);
+  transition:background .45s,color .45s,border-color .45s,box-shadow .45s}
+.foot .btn:hover{background:var(--ember);color:#1a0c03;border-color:var(--ember);box-shadow:0 0 40px rgba(255,143,77,.4)}
+.foot .meta{margin-top:44px;font-size:clamp(12px,1.3vw,13px);letter-spacing:.14em;color:rgba(240,229,217,.42);line-height:2.4}
+
+@media(max-width:600px){
+  .top{padding:12px 16px}
+  .tl-day{grid-template-columns:1fr;gap:4px}
+  .dchip{padding-top:0}
+  .mcount{margin-left:0}
+}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.rv{opacity:1;transform:none}}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <a class="back" href="index.html" data-zh="← 回首頁" data-en="← Home"></a>
+  <nav class="lang">
+    <button id="zh" class="on">中文</button><span>/</span><button id="en">EN</button>
+  </nav>
+</header>
+
+<main>
+
+<section class="phead">
+  <div class="kicker">Devlog</div>
+  <h1 data-zh="開發日誌" data-en="Development Log"></h1>
+  <p class="lead"
+     data-zh="一開始只有一顆會動的黑點，跟它吐出來的白點。&#10;以下是它變成一款遊戲的全部過程。"
+     data-en="It began as a black dot that moved, and the white dots it spat out.&#10;What follows is everything that happened after."></p>
+  <div class="stats">
+    <div class="stat"><b>{{COUNT}}</b><span data-zh="則紀錄" data-en="ENTRIES"></span></div>
+    <div class="stat"><b>{{DAYS}}</b><span data-zh="天" data-en="DAYS"></span></div>
+    <div class="stat"><b>3</b><span data-zh="段影片" data-en="CLIPS"></span></div>
+  </div>
+</section>
+
+<div class="rule"></div>
+
+<!-- ===== 里程碑 ===== -->
+<section class="miles">
+  <div class="shead">
+    <h2 data-zh="最初的三個里程碑" data-en="The First Three Milestones"></h2>
+    <p data-zh="專案剛開始的那幾個星期，每一步都看得見。"
+       data-en="The first few weeks, when every step was still visible."></p>
+  </div>
+
+  <article class="mile rv">
+    <div class="mtop">
+      <span class="mdate">2026.02.27</span>
+      <h3 data-zh="建立基本彈道" data-en="First Ballistics"></h3>
+    </div>
+    <p class="mdesc"
+       data-zh="第一天。沒有角色，沒有地圖，沒有美術——只有一顆會動的黑點，跟它射出去的白點。整個專案就是從這 12 秒開始長出來的。"
+       data-en="Day one. No character, no map, no art — just a black dot that moves and the white dots it fires. The entire project grew out of these twelve seconds."></p>
+    <div class="vwrap">
+      <video controls preload="none" playsinline poster="assets/dev01_ballistics_poster.webp">
+        <source src="video/dev01_ballistics.mp4" type="video/mp4"></video>
+    </div>
+  </article>
+
+  <article class="mile rv">
+    <div class="mtop">
+      <span class="mdate">2026.03.01</span>
+      <h3 data-zh="地板、人物、怪物" data-en="Floor, Player, Monsters"></h3>
+    </div>
+    <p class="mdesc"
+       data-zh="三天後，黑點有了身體。地板、主角、怪物第一次同時出現在同一個畫面上——雖然還很粗糙，但已經看得出這是一款遊戲，而不是一個測試程式。"
+       data-en="Three days later, the dot had a body. Floor, player and monsters appeared on screen together for the first time. Crude, but recognisably a game rather than a test harness."></p>
+    <div class="vwrap">
+      <video controls preload="none" playsinline poster="assets/dev02_sprites_poster.webp">
+        <source src="video/dev02_sprites.mp4" type="video/mp4"></video>
+    </div>
+  </article>
+
+  <article class="mile rv">
+    <div class="mtop">
+      <span class="mdate">2026.04.06</span>
+      <h3 data-zh="會痛了，也會追了" data-en="It Hurts, and It Follows"></h3>
+    </div>
+    <p class="mdesc"
+       data-zh="打得到，也會痛了。受擊反應讓攻擊終於有了手感，而追蹤彈讓怪物第一次真的具有威脅——這一刻起，它開始像是一場戰鬥，而不是在射靶。"
+       data-en="Hits land, and they hurt. Damage reactions gave attacks their weight, and homing shots made the monsters genuinely dangerous. From here on it was a fight, not target practice."></p>
+    <div class="vwrap">
+      <video controls preload="none" playsinline poster="assets/dev03_homing_poster.webp">
+        <source src="video/dev03_homing.mp4" type="video/mp4"></video>
+    </div>
+  </article>
+</section>
+
+<div class="rule"></div>
+
+<!-- ===== 時間軸 ===== -->
+<section class="tlwrap">
+  <div class="shead">
+    <h2 data-zh="之後的每一天" data-en="Every Day Since"></h2>
+    <p data-zh="{{FIRST}} — {{LAST}}　依時間排列，越新的在越下面。"
+       data-en="{{FIRST}} — {{LAST}}　In chronological order, newest at the bottom."></p>
+  </div>
+
+  <div class="tl">
+<!--TIMELINE-->
+  </div>
+</section>
+
+<p class="note" data-zh="以上內容取自專案的版本紀錄，已略去純文件與雜項提交。"
+   data-en="Compiled from the project's own commit history; documentation-only and housekeeping commits are omitted. Entries are kept in the original Chinese."></p>
+
+</main>
+
+<footer class="foot">
+  <a class="btn" href="index.html" data-zh="回到首頁" data-en="Back to Home"></a>
+  <div class="meta">
+    <div data-zh="《燃燈劫》LAMPBLACK: Rebirth of Ruin" data-en="LAMPBLACK: Rebirth of Ruin"></div>
+    <div>© 2026 · thelampblack.com</div>
+  </div>
+</footer>
+
+<script>
+const NODES  = document.querySelectorAll('[data-zh]');
+const BTN_ZH = document.getElementById('zh');
+const BTN_EN = document.getElementById('en');
+const META = { zh:{lang:'zh-Hant',title:'開發日誌 — LAMPBLACK 燃燈劫'},
+               en:{lang:'en',      title:'Devlog — LAMPBLACK'} };
+function setLang(l){
+  NODES.forEach(n => n.innerHTML = (n.dataset[l] || '').replace(/\n/g,'<br>'));
+  document.documentElement.lang = META[l].lang;
+  document.title = META[l].title;
+  BTN_ZH.classList.toggle('on', l === 'zh');
+  BTN_EN.classList.toggle('on', l === 'en');
+  try { localStorage.setItem('lb_lang', l); } catch(e){}
+}
+BTN_ZH.onclick = () => setLang('zh');
+BTN_EN.onclick = () => setLang('en');
+let saved = null;
+try { saved = localStorage.getItem('lb_lang'); } catch(e){}
+if (saved !== 'zh' && saved !== 'en')
+  saved = (navigator.language || '').toLowerCase().startsWith('zh') ? 'zh' : 'en';
+setLang(saved);
+
+const io = new IntersectionObserver((es)=>{
+  es.forEach(e => { if (e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
+}, { threshold: 0.08 });
+document.querySelectorAll('.rv').forEach(el => io.observe(el));
+</script>
+</body>
+</html>

@@ -33,16 +33,27 @@ SHOT_QUALITY = 74      # WebP 品質 0-100，越高越清楚也越大
 # 截圖檔名（片段） -> 輸出檔名。新增截圖時在這裡加一行，
 # 然後到 index.html 的 <div class="grid"> 裡加對應的 <figure>。
 SHOT_MAP = {
-    "9.48.58": "shot_buddha",      # 洞窟邪佛
-    "9.45.40": "shot_boss",        # 榕樹妖登場
-    "9.45.25": "shot_bride_talk",  # 紅嫁衣對話
-    "9.46.35": "shot_hall",        # 紅嫁衣大廳
-    "9.44.17": "shot_forest",      # 森林小徑
-    "9.48.44": "shot_ritual",      # 圓形法陣
-    "9.45.46": "shot_banyan",      # 大榕樹墳場
-    "9.49.23": "shot_square",      # 邪佛廣場
-    "9.46.08": "shot_ghosts",      # 鬼魂房間
+    # 場景（用在「祂指過的地方」交錯排版區）
+    "場景-初始森林":   ("sc_forest",   0.00),
+    "場景-紅嫁衣2":    ("sc_bride",    0.22),
+    "場景-紅嫁衣":     ("sc_bride2",   0.22),
+    "場景-邪佛廣場":   ("sc_square",   0.22),
+    "場景-競技場":     ("sc_arena",    0.22),
+    "場景-邪佛":       ("shot_buddha", 0.20),  # 全螢幕圖版用
+    # 介面
+    "介面-抽取武器":   ("shot_gacha",  0.00),
+    # 武器（用在橫向卷軸區）
+    "武器-幽冥鬼火":   ("w_ghostfire", 0.24),
+    "武器-凍氣飛劍":   ("w_frost",     0.24),
+    "武器-反彈彎刀":   ("w_bounce",    0.24),
+    "武器-地裂之戟":   ("w_earth",     0.24),
+    "武器-死字咒":     ("w_deathword", 0.24),
+    "武器-喚靈水晶":   ("w_summon",    0.24),
+    "武器-蟲洞":       ("w_wormhole",  0.24),
+    "武器-青冥鏡":     ("w_mirror",    0.24),
 }
+# 註：第二個數字是「從底部裁掉的比例」，用來切掉遊戲的 HUD 操控列。
+#     場景-初始森林 沒有 HUD 所以是 0。
 
 
 def trim_black_bars(im, threshold=10):
@@ -76,11 +87,13 @@ def trim_black_bars(im, threshold=10):
     return im.crop((left, top, right + 1, bottom + 1))
 
 
-def convert(src, dst_name, width, quality, keep_alpha=False, trim=True):
+def convert(src, dst_name, width, quality, keep_alpha=False, trim=True, crop_bottom=0.0):
     im = Image.open(src)
     im = im.convert("RGBA" if keep_alpha else "RGB")
     if trim and not keep_alpha:
         im = trim_black_bars(im)
+    if crop_bottom > 0:                       # 切掉底部的遊戲 HUD
+        im = im.crop((0, 0, im.width, int(im.height * (1 - crop_bottom))))
     if im.width > width:
         im = im.resize((width, round(im.height * width / im.width)), Image.LANCZOS)
     dst = os.path.join(OUT_DIR, dst_name + ".webp")
@@ -105,12 +118,14 @@ def main():
 
     done, skipped = 0, []
     for f in files:
-        base = os.path.basename(f)
-        key = next((k for k in SHOT_MAP if k in base), None)
-        if key is None:
+        base = os.path.splitext(os.path.basename(f))[0]
+        # 用完全比對，避免「場景-紅嫁衣」誤配到「場景-紅嫁衣2」
+        entry = SHOT_MAP.get(base)
+        if entry is None:
             skipped.append(base)
             continue
-        convert(f, SHOT_MAP[key], SHOT_WIDTH, SHOT_QUALITY)
+        name, cut = entry
+        convert(f, name, SHOT_WIDTH, SHOT_QUALITY, crop_bottom=cut)
         done += 1
 
     print(f"\n完成 {done} 張。")

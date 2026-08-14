@@ -17,10 +17,12 @@
 ```
 DipanProj_WebSite/
 ├── public/              ← ★ 只有這個資料夾會被發布上網
-│   ├── index.html       ← 網站本體（HTML/CSS/JS 全寫在裡面，單一檔案）
+│   ├── index.html       ← 首頁（HTML/CSS/JS 全寫在裡面，單一檔案）
+│   ├── devlog.html      ← 開發日誌頁（由腳本產生，不要手改）
 │   ├── assets/          ← 壓縮過的圖（WebP）
 │   ├── video/
-│   │   └── teaser.mp4   ← 預告片（已加 faststart）
+│   │   ├── teaser.mp4   ← 預告片（已加 faststart）
+│   │   └── dev0*.mp4    ← 開發日誌的三段里程碑影片
 │   ├── _headers         ← Cloudflare Pages 的 HTTP 標頭設定
 │   ├── robots.txt
 │   ├── sitemap.xml
@@ -33,7 +35,9 @@ DipanProj_WebSite/
 │   └── 影片/
 │
 ├── tools/
-│   └── build_assets.py  ← 把 遊戲內資源/截圖/ 壓成 public/assets/
+│   ├── build_assets.py       ← 把 遊戲內資源/截圖/ 壓成 public/assets/
+│   ├── build_devlog.py       ← 從主專案 git 紀錄產生 public/devlog.html
+│   └── devlog_template.html  ← 開發日誌的版型與里程碑文案
 │
 ├── .gitignore
 └── README.md
@@ -99,6 +103,36 @@ ffmpeg -ss 10 -i public/video/teaser.mp4 -frames:v 1 /tmp/poster.png
 ```
 
 ⚠️ Cloudflare Pages **單一檔案上限 25MB**，影片超過要先壓縮，或改用 YouTube 嵌入。
+
+---
+
+## 更新開發日誌
+
+開發日誌頁 `public/devlog.html` 是**自動產生的，不要直接手改**（下次重跑會被覆蓋）。
+
+```bash
+python3 tools/build_devlog.py
+```
+
+它會讀取 `../DipanProj` 的 git 紀錄（唯讀，只跑 `git log --no-optional-locks`，
+不會在主專案裡留下任何東西），濾掉純文件與雜項提交，然後套版產生頁面。
+
+要改的地方：
+
+| 想改什麼 | 改哪裡 |
+|---|---|
+| 頁面版型、色彩 | `tools/devlog_template.html` 的 `<style>` |
+| 開頭三段里程碑影片的標題與敘述 | `tools/devlog_template.html` 的 `<article class="mile">` |
+| 哪些提交要被濾掉 | `tools/build_devlog.py` 的 `NOISE` / `NOISE_PREFIX` |
+
+⚠️ 腳本預期 **DipanProj 與 DipanProj_WebSite 放在同一層**。搬動資料夾要同步改 `GAME_REPO`。
+
+里程碑影片同樣要壓過（原檔 9–31MB，壓完 0.9–5.7MB）：
+
+```bash
+ffmpeg -i 原檔.mp4 -vf scale=1280:-2 -c:v libx264 -crf 26 -preset slow \
+  -pix_fmt yuv420p -c:a aac -b:a 96k -movflags +faststart public/video/devXX.mp4
+```
 
 ---
 
