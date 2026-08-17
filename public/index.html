@@ -207,7 +207,7 @@ html[lang="en"] .solo .num{font-family:var(--display);font-weight:500;
 .loopshot::before{content:"";position:absolute;inset:-40px;pointer-events:none;filter:blur(30px);
   background:radial-gradient(ellipse at center, rgba(255,150,70,.17), transparent 70%)}
 .loopshot img{position:relative;width:100%;box-shadow:0 0 0 1px rgba(255,226,200,.13),0 30px 70px rgba(0,0,0,.55)}
-.four{display:grid;grid-template-columns:repeat(4,1fr);gap:clamp(16px,2.2vw,26px);max-width:1180px;margin:0 auto}
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(18px,2.4vw,28px);max-width:1180px;margin:0 auto}
 .card{background:var(--surface);border:1px solid var(--line);padding:32px 24px 36px;text-align:center}
 .card h3{font-weight:500;font-size:clamp(19px,2.2vw,24px);color:var(--ember-hi);
   letter-spacing:.24em;text-shadow:0 0 24px rgba(255,143,77,.32)}
@@ -217,6 +217,50 @@ html[lang="en"] .card h3{font-family:var(--display);font-size:clamp(16px,1.9vw,2
 .card .cline{width:38px;height:1px;margin:16px auto 22px;
   background:linear-gradient(90deg,transparent,rgba(255,160,95,.55),transparent)}
 .card p{font-size:clamp(13px,1.5vw,15px);line-height:2.1;color:var(--muted)}
+
+/* ---------- 血統 ---------- */
+.blood{max-width:1180px;margin:0 auto}
+/* 必須靠「上」對齊。用 align-items:end 的話，說明文字只有一行的那欄
+   會整欄被推下去，角色與名稱就對不齊了 */
+.bl-row{display:grid;grid-template-columns:1fr auto 1fr auto 1fr;align-items:start;
+  gap:clamp(8px,1.6vw,24px)}
+.bl{position:relative;text-align:center}
+.bl-fig{position:relative;display:flex;align-items:flex-end;justify-content:center;
+  height:clamp(210px,26vw,320px);margin-bottom:26px}
+/* 腳下的光暈：階段越後面越亮，用來表現「越來越不是人」 */
+.bl-fig::before{content:"";position:absolute;left:50%;bottom:-6px;transform:translateX(-50%);
+  width:86%;height:38%;pointer-events:none;filter:blur(18px);border-radius:50%}
+.bl-1 .bl-fig::before{background:radial-gradient(ellipse at center, rgba(255,90,60,.20), transparent 70%)}
+.bl-2 .bl-fig::before{background:radial-gradient(ellipse at center, rgba(255,120,70,.32), transparent 70%)}
+.bl-3 .bl-fig::before{background:radial-gradient(ellipse at center, rgba(255,150,70,.52), transparent 72%)}
+.bl-fig img{position:relative;height:100%;width:auto;max-width:100%;object-fit:contain}
+.bl-1 .bl-fig img{filter:drop-shadow(0 6px 22px rgba(0,0,0,.8))}
+.bl-2 .bl-fig img{filter:drop-shadow(0 6px 24px rgba(0,0,0,.8)) drop-shadow(0 0 26px rgba(255,110,50,.20))}
+.bl-3 .bl-fig img{filter:drop-shadow(0 6px 26px rgba(0,0,0,.85)) drop-shadow(0 0 40px rgba(255,140,60,.38));
+  animation:blPulse 5.5s ease-in-out infinite}
+@keyframes blPulse{
+  0%,100%{filter:drop-shadow(0 6px 26px rgba(0,0,0,.85)) drop-shadow(0 0 40px rgba(255,140,60,.38))}
+  50%    {filter:drop-shadow(0 6px 26px rgba(0,0,0,.85)) drop-shadow(0 0 56px rgba(255,165,85,.56))}
+}
+.bl-stage{font-family:var(--display);font-size:12px;letter-spacing:.34em;
+  color:var(--ember);opacity:.85;margin-bottom:12px}
+.bl h3{font-weight:500;font-size:clamp(21px,2.7vw,29px);letter-spacing:.2em;margin-bottom:8px}
+/* 名稱顏色跟著階段一起升溫：冷白 → 暖白 → 火色，呼應腳下光暈的遞增 */
+.bl-1 h3{color:rgba(226,222,216,.88)}
+.bl-2 h3{color:rgba(252,243,228,.97);text-shadow:0 0 22px rgba(255,150,80,.20)}
+.bl-3 h3{color:var(--ember-hi);text-shadow:0 0 30px rgba(255,143,77,.5)}
+.bl-rom{font-family:var(--display);font-size:11px;letter-spacing:.28em;
+  color:rgba(240,229,217,.34);text-transform:uppercase;margin-bottom:18px}
+/* 英文版這一格放的是漢字，改用襯線體並收窄字距 */
+html[lang="en"] .bl-rom{font-family:var(--serif);font-size:13px;letter-spacing:.2em;text-transform:none}
+/* 用 em 控寬度，中文一行約 19 個字才不會斷成孤字 */
+.bl p{font-size:clamp(13px,1.55vw,15px);line-height:2.1;color:var(--muted);
+  max-width:19em;margin:0 auto}
+html[lang="en"] .bl p{max-width:26em}
+/* 階段之間的箭頭 */
+/* 箭頭對齊角色圖的垂直中線（.bl-fig 高度的一半） */
+.bl-arrow{align-self:start;margin-top:calc(clamp(210px,26vw,320px) / 2);
+  color:rgba(255,143,77,.45);font-size:clamp(18px,2.4vw,26px);line-height:1;user-select:none}
 
 /* ---------- 武器橫向卷軸 ---------- */
 /* 卷軸寬度＝內容欄寬度，卡片剛好排滿三張，左右兩側自然對齊其他區塊 */
@@ -287,14 +331,22 @@ footer .fmark{width:22px;margin:0 auto 24px;opacity:.24}
 .toast.on{opacity:1;transform:translate(-50%,0)}
 @media(max-width:520px){.toast{white-space:normal;bottom:28px;padding:14px 22px}}
 
-@media(max-width:1000px){ .four{grid-template-columns:repeat(2,1fr)} }
 @media(max-width:900px){ .wcard{flex:0 0 calc((100% - 20px)/2)} }
+@media(max-width:820px){
+  .bl-row{grid-template-columns:1fr;gap:14px}
+  .bl-arrow{margin:0 auto;transform:rotate(90deg)}   /* 直排時要清掉上面的 margin-top */
+  .bl{padding-bottom:14px}
+}
 @media(max-width:620px){ .wcard{flex:0 0 100%} }
 @media(max-width:800px){
-  .scene{grid-template-columns:1fr;gap:22px}
+  /* .scene.alt 的權重比 .scene 高，單欄化必須連 .alt 一起寫，
+     否則交錯的那幾張圖會被塞回 .7fr 的窄欄，在手機上變得特別小 */
+  .scene, .scene.alt{grid-template-columns:1fr;gap:22px}
   .scene.alt .scene-img{order:0}
 }
-@media(max-width:560px){ .four{grid-template-columns:1fr} .lang{top:14px;right:14px} }
+/* 三欄不做 2 欄的中間狀態，否則會變成 2+1 落單 */
+@media(max-width:860px){ .cards{grid-template-columns:1fr} }
+@media(max-width:560px){ .lang{top:14px;right:14px} }
 @media(prefers-reduced-motion:reduce){ *{animation:none!important;transition:none!important} .rv{opacity:1;transform:none} }
 </style>
 </head>
@@ -372,7 +424,7 @@ footer .fmark{width:22px;margin:0 auto 24px;opacity:.24}
 
   <div class="loopshot rv"><img src="assets/shot_gacha.webp" alt="" loading="lazy"></div>
 
-  <div class="four">
+  <div class="cards">
     <div class="card rv">
       <h3 data-zh="抽取" data-en="Draw"></h3><div class="cline"></div>
       <p data-zh="向祂祈求，拿到什麼全憑天命&#10;不存在討價還價"
@@ -388,10 +440,53 @@ footer .fmark{width:22px;margin:0 auto 24px;opacity:.24}
       <p data-zh="輪迴並且變強&#10;直到終結一切"
          data-en="Return, and grow stronger&#10;until you can end it all."></p>
     </div>
-    <div class="card rv">
-      <h3 data-zh="血統" data-en="Bloodline"></h3><div class="cline"></div>
-      <p data-zh="厭倦了弱小的人類之身，&#10;有另外的捷徑"
-         data-en="Tired of a weak human body?&#10;There is another road."></p>
+  </div>
+</section>
+
+<div class="rule"></div>
+
+<!-- ============ 血統 ============ -->
+<section class="band">
+  <div class="head">
+    <h2 data-zh="血統" data-en="Bloodline"></h2>
+    <p class="rv" data-zh="厭倦了弱小的人類之身，&#10;有另外的捷徑"
+       data-en="Tired of a weak human body?&#10;There is another road."></p>
+  </div>
+
+  <div class="blood">
+    <div class="bl-row">
+
+      <div class="bl bl-1 rv">
+        <div class="bl-fig"><img src="assets/bl_zombie1.webp" alt="" loading="lazy"></div>
+        <div class="bl-stage" data-zh="其一" data-en="I"></div>
+        <h3 data-zh="殭屍" data-en="Jiangshi"></h3>
+        <div class="bl-rom" data-zh="Jiangshi" data-en="殭屍"></div>
+        <p data-zh="你不再需要呼吸。同時也不再是人。"
+           data-en="You no longer need to breathe. You are also no longer human."></p>
+      </div>
+
+      <div class="bl-arrow" aria-hidden="true">›</div>
+
+      <div class="bl bl-2 rv">
+        <div class="bl-fig"><img src="assets/bl_zombie2.webp" alt="" loading="lazy"></div>
+        <div class="bl-stage" data-zh="其二" data-en="II"></div>
+        <h3 data-zh="毛殭" data-en="Maojiang"></h3>
+        <div class="bl-rom" data-zh="Maojiang" data-en="毛殭"></div>
+        <p data-zh="白毛覆體，爪牙成形。多一分力氣，就少一分神智。"
+           data-en="White fur, claws, fangs. Every measure of strength costs a measure of mind."></p>
+      </div>
+
+      <div class="bl-arrow" aria-hidden="true">›</div>
+
+      <div class="bl bl-3 rv">
+        <div class="bl-fig"><img src="assets/bl_zombie3.webp" alt="" loading="lazy"></div>
+        <div class="bl-stage" data-zh="其三" data-en="III"></div>
+        <h3 data-zh="旱魃" data-en="Hanba"></h3>
+        <div class="bl-rom" data-zh="Hanba · Drought God" data-en="旱魃"></div>
+        <p data-zh="旱災之神。祂走過的地方，千里之內不落一滴雨。"
+           data-en="The drought god. Where it walks, no rain falls for a thousand li."></p>
+      </div>
+
     </div>
   </div>
 </section>

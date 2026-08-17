@@ -3,7 +3,7 @@
 從原始素材產生網站用的壓縮圖（WebP）到 assets/。
 
 用法：
-    python3 tools/build_assets.py
+    npm run assets          （等同 python3 tools/build_assets.py）
 
 需要 Pillow：
     pip3 install Pillow
@@ -30,16 +30,14 @@ SHOT_WIDTH = 1400      # 遊戲截圖輸出寬度（px）
 SHOT_QUALITY = 74      # WebP 品質 0-100，越高越清楚也越大
 # ----------------
 
-# 截圖檔名（片段） -> 輸出檔名。新增截圖時在這裡加一行，
-# 然後到 index.html 的 <div class="grid"> 裡加對應的 <figure>。
+# 原始截圖檔名（不含副檔名） -> (輸出檔名, 底部裁切比例)
+# 新增截圖時在這裡加一行，再到 index.html 加對應的區塊（見 README）。
 SHOT_MAP = {
     # 場景（用在「祂指過的地方」交錯排版區）
     "場景-初始森林":   ("sc_forest",   0.00),
-    "場景-紅嫁衣2":    ("sc_bride",    0.22),
-    "場景-紅嫁衣":     ("sc_bride2",   0.22),
+    "場景-紅嫁衣":     ("sc_bride",    0.22),
     "場景-邪佛廣場":   ("sc_square",   0.22),
-    "場景-競技場":     ("sc_arena",    0.22),
-    "場景-邪佛":       ("shot_buddha", 0.20),  # 全螢幕圖版用
+    "場景-邪佛":       ("shot_buddha", 0.20),  # 世界觀區塊的背景
     # 介面
     "介面-抽取武器":   ("shot_gacha",  0.00),
     # 武器（用在橫向卷軸區）
@@ -54,6 +52,11 @@ SHOT_MAP = {
 }
 # 註：第二個數字是「從底部裁掉的比例」，用來切掉遊戲的 HUD 操控列。
 #     場景-初始森林 沒有 HUD 所以是 0。
+#
+# ⚠️ 右邊的輸出名稱必須和 public/index.html 裡 <img src="assets/…"> 用的檔名一致，
+#    否則你更新了原始截圖、跑完腳本，網站上還是舊圖（而且不會有任何錯誤訊息）。
+#    改動這裡之後，用這行檢查有沒有對上：
+#      grep -oE 'assets/[a-z_0-9]+\.webp' public/index.html | sort -u
 
 
 def trim_black_bars(im, threshold=10):
@@ -102,6 +105,41 @@ def convert(src, dst_name, width, quality, keep_alpha=False, trim=True, crop_bot
     print(f"  {dst_name}.webp  {im.width}x{im.height}  {kb}KB")
 
 
+# ---------- 血統設定圖 ----------
+# 這些是透明底的角色立繪，三隻要「等高」並排才好看，
+# 所以走另一條處理路徑（依高度縮放），不套用上面的 SHOT_WIDTH。
+BLOOD_DIR = os.path.join(ROOT, "遊戲內資源", "血統")
+BLOOD_HEIGHT = 560
+BLOOD_QUALITY = 86
+BLOOD_MAP = {
+    # 資料夾名稱: [(來源檔名（不含副檔名）, 輸出名), ...]
+    "殭屍": [("1.殭屍", "bl_zombie1"), ("2.毛殭", "bl_zombie2"), ("3.旱魃", "bl_zombie3")],
+}
+
+
+def build_bloodlines():
+    if not os.path.isdir(BLOOD_DIR):
+        return
+    print("\n血統設定圖：")
+    for folder, items in BLOOD_MAP.items():
+        src_dir = os.path.join(BLOOD_DIR, folder)
+        if not os.path.isdir(src_dir):
+            print(f"  （找不到 {folder}/，略過）")
+            continue
+        for src_name, out_name in items:
+            src = os.path.join(src_dir, src_name + ".png")
+            if not os.path.isfile(src):
+                print(f"  （找不到 {folder}/{src_name}.png，略過）")
+                continue
+            im = Image.open(src).convert("RGBA")
+            im = im.crop(im.getbbox())          # 去掉四周多餘的透明區
+            w = round(im.width * BLOOD_HEIGHT / im.height)
+            im = im.resize((w, BLOOD_HEIGHT), Image.LANCZOS)
+            dst = os.path.join(OUT_DIR, out_name + ".webp")
+            im.save(dst, "WEBP", quality=BLOOD_QUALITY, method=6)
+            print(f"  {out_name}.webp  {im.width}x{BLOOD_HEIGHT}  {os.path.getsize(dst)//1024}KB")
+
+
 def main():
     if not os.path.isdir(SHOTS_DIR):
         sys.exit(f"找不到截圖資料夾：{SHOTS_DIR}")
@@ -134,7 +172,9 @@ def main():
         for s in skipped:
             print(f"  - {s}")
         print("\n若要納入網站，請到本腳本的 SHOT_MAP 加一行，"
-              "再到 index.html 的 grid 區塊加 <figure>。")
+              "再到 index.html 加對應區塊（見 README「更新截圖」）。")
+
+    build_bloodlines()
 
 
 if __name__ == "__main__":
