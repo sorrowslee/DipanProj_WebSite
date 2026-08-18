@@ -220,6 +220,28 @@ html[lang="en"] .card h3{font-family:var(--display);font-size:clamp(16px,1.9vw,2
 
 /* ---------- 血統 ---------- */
 .blood{max-width:1180px;margin:0 auto}
+/* 把三階框在同一個容器裡，讓人一眼看出「這是一條血統」而不是三條 */
+.bl-group{position:relative;border:1px solid rgba(255,226,200,.15);
+  background:linear-gradient(180deg, rgba(255,238,220,.045), rgba(255,238,220,.012));
+  padding:clamp(34px,4.5vw,54px) clamp(20px,3vw,44px) clamp(38px,5vw,58px)}
+/* 對角的兩個轉角記號——比整圈粗框低調，但足以讓人看出「這一整塊是一件事」 */
+.bl-group::before,.bl-group::after{content:"";position:absolute;
+  width:clamp(18px,2.4vw,30px);height:clamp(18px,2.4vw,30px);
+  border:1px solid rgba(255,160,95,.45);pointer-events:none}
+.bl-group::before{top:-1px;left:-1px;border-right:0;border-bottom:0}
+.bl-group::after{bottom:-1px;right:-1px;border-left:0;border-top:0}
+.bl-fam{text-align:center;margin-bottom:clamp(34px,4.5vh,54px)}
+.bl-fam-tag{display:inline-block;font-family:var(--display);font-size:11px;letter-spacing:.34em;
+  color:var(--ember);text-transform:uppercase;padding:5px 14px;
+  border:1px solid rgba(255,143,77,.35);background:rgba(255,143,77,.06);margin-bottom:20px}
+.bl-fam-name{font-weight:500;font-size:clamp(24px,3.4vw,36px);letter-spacing:.24em;
+  color:rgba(252,247,242,.97);margin-bottom:16px;text-shadow:0 0 34px rgba(255,143,77,.22)}
+.bl-fam-desc{font-size:clamp(13.5px,1.6vw,16px);line-height:2.1;color:var(--muted);
+  max-width:34em;margin:0 auto}
+/* 家族名稱下的分隔線，把「這一條血統」和「它的三個階段」分開 */
+.bl-fam::after{content:"";display:block;width:clamp(40px,7vw,90px);height:1px;
+  margin:clamp(26px,3.4vh,38px) auto 0;
+  background:linear-gradient(90deg,transparent,rgba(255,160,95,.5),transparent)}
 /* 必須靠「上」對齊。用 align-items:end 的話，說明文字只有一行的那欄
    會整欄被推下去，角色與名稱就對不齊了 */
 .bl-row{display:grid;grid-template-columns:1fr auto 1fr auto 1fr;align-items:start;
@@ -242,8 +264,9 @@ html[lang="en"] .card h3{font-family:var(--display);font-size:clamp(16px,1.9vw,2
   0%,100%{filter:drop-shadow(0 6px 26px rgba(0,0,0,.85)) drop-shadow(0 0 40px rgba(255,140,60,.38))}
   50%    {filter:drop-shadow(0 6px 26px rgba(0,0,0,.85)) drop-shadow(0 0 56px rgba(255,165,85,.56))}
 }
-.bl-stage{font-family:var(--display);font-size:12px;letter-spacing:.34em;
-  color:var(--ember);opacity:.85;margin-bottom:12px}
+.bl-stage{font-size:clamp(12.5px,1.45vw,14px);letter-spacing:.3em;
+  color:var(--ember);opacity:.9;margin-bottom:12px}
+html[lang="en"] .bl-stage{font-family:var(--display);font-size:11px;letter-spacing:.28em;text-transform:uppercase}
 .bl h3{font-weight:500;font-size:clamp(21px,2.7vw,29px);letter-spacing:.2em;margin-bottom:8px}
 /* 名稱顏色跟著階段一起升溫：冷白 → 暖白 → 火色，呼應腳下光暈的遞增 */
 .bl-1 h3{color:rgba(226,222,216,.88)}
@@ -440,6 +463,8 @@ footer .fmark{width:22px;margin:0 auto 24px;opacity:.24}
       <p data-zh="輪迴並且變強&#10;直到終結一切"
          data-en="Return, and grow stronger&#10;until you can end it all."></p>
     </div>
+
+   </div>
   </div>
 </section>
 
@@ -454,11 +479,21 @@ footer .fmark{width:22px;margin:0 auto 24px;opacity:.24}
   </div>
 
   <div class="blood">
+   <div class="bl-group rv">
+
+    <header class="bl-fam">
+      <div class="bl-fam-tag" data-zh="血統之一" data-en="Bloodline I"></div>
+      <h3 class="bl-fam-name" data-zh="殭屍血統" data-en="The Jiangshi Line"></h3>
+      <p class="bl-fam-desc"
+         data-zh="人類的成分越來越少，取而代之的是越來越強的神靈之力"
+         data-en="Less and less of the human remains; what fills the space is divine, and it is stronger."></p>
+    </header>
+
     <div class="bl-row">
 
       <div class="bl bl-1 rv">
         <div class="bl-fig"><img src="assets/bl_zombie1.webp" alt="" loading="lazy"></div>
-        <div class="bl-stage" data-zh="其一" data-en="I"></div>
+        <div class="bl-stage" data-zh="初階" data-en="First Form"></div>
         <h3 data-zh="殭屍" data-en="Jiangshi"></h3>
         <div class="bl-rom" data-zh="Jiangshi" data-en="殭屍"></div>
         <p data-zh="你不再需要呼吸。同時也不再是人。"
@@ -469,7 +504,7 @@ footer .fmark{width:22px;margin:0 auto 24px;opacity:.24}
 
       <div class="bl bl-2 rv">
         <div class="bl-fig"><img src="assets/bl_zombie2.webp" alt="" loading="lazy"></div>
-        <div class="bl-stage" data-zh="其二" data-en="II"></div>
+        <div class="bl-stage" data-zh="中階" data-en="Second Form"></div>
         <h3 data-zh="毛殭" data-en="Maojiang"></h3>
         <div class="bl-rom" data-zh="Maojiang" data-en="毛殭"></div>
         <p data-zh="白毛覆體，爪牙成形。多一分力氣，就少一分神智。"
@@ -480,7 +515,7 @@ footer .fmark{width:22px;margin:0 auto 24px;opacity:.24}
 
       <div class="bl bl-3 rv">
         <div class="bl-fig"><img src="assets/bl_zombie3.webp" alt="" loading="lazy"></div>
-        <div class="bl-stage" data-zh="其三" data-en="III"></div>
+        <div class="bl-stage" data-zh="最終" data-en="Final Form"></div>
         <h3 data-zh="旱魃" data-en="Hanba"></h3>
         <div class="bl-rom" data-zh="Hanba · Drought God" data-en="旱魃"></div>
         <p data-zh="旱災之神。祂走過的地方，千里之內不落一滴雨。"
