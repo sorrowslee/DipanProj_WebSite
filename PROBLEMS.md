@@ -177,13 +177,35 @@ Cloudflare Workers 靜態資源 / Pages 的**單檔上限是 25 MiB**。
 更新了某張截圖、推上去也部署成功了，但瀏覽器看到的還是舊圖。
 
 **原因**
-`public/_headers` 裡設定了 `/assets/*` 快取一天（`max-age=86400`）。
-Cloudflare 邊緣節點在每次部署後會自己更新，但**訪客瀏覽器裡的舊檔案還沒過期**。
+`public/_headers` 原本設定 `/assets/*` 快取一天（`max-age=86400`）。
+換圖時檔名沒變 → 網址沒變 → **瀏覽器在那一天內根本不會回來問伺服器**，
+所以不管重新部署幾次，看到的都是本機硬碟裡那份舊的。
+Cloudflare 邊緣節點會跟著部署更新，問題全出在訪客端。
 
-**解法**
+**怎麼快速分辨「是快取」還是「真的沒部署到」**
+在網址後面加一個查詢字串，例如：
+
+```
+https://thelampblack.com/assets/sc_bride.webp?v=1
+```
+
+`?v=1` 是一個沒被快取過的新網址，一定會真的去伺服器拿。
+- 看到**新圖** → 部署沒問題，純粹是快取
+- 看到**舊圖** → 才是部署／git 的問題，去查 `git log -- 該檔案` 和 `git rev-parse HEAD origin/main`
+
+**解法（2026-08 已改掉）**
+`_headers` 的 `/assets/*` 和 `/video/*` 改成 `max-age=0, must-revalidate`。
+這不是「不快取」——伺服器會附 ETag，檔案沒變時回 `304 Not Modified`，
+幾乎不傳資料，只多一次來回。對這種規模的網站可以忽略，
+換來的是**推上去就一定看得到新的**。
+
+改設定當下，舊的 `max-age=86400` 還留在訪客瀏覽器裡，所以：
 - 自己看：`Cmd + Shift + R` 強制重新整理
-- 要讓所有訪客立刻看到：**換檔名**（例如 `shot_boss.webp` → `shot_boss2.webp`），
-  順便改 `index.html` 裡的引用。改名等於是新的網址，一定不會撞到快取。
+- 保險起見到 Cloudflare 後台 **Caching → Configuration → Purge Everything** 清一次邊緣快取
+
+長期快取只留給「上線後就不會再改」的東西（favicon）。
+如果哪天真的很在意效能，正解是**檔名帶內容雜湊**（`sc_bride.a1b2c3.webp`），
+由 `build_assets.py` 產生並自動改寫 `index.html` 的引用——那樣就能安心設一年。
 
 ---
 

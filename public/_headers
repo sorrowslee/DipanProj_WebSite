@@ -1,4 +1,4 @@
-# Cloudflare Pages 會讀這個檔設定 HTTP 標頭。
+# Cloudflare 會讀這個檔設定 HTTP 標頭。
 # 語法：路徑一行，底下縮排兩空格寫標頭。
 
 /*
@@ -6,14 +6,18 @@
   Referrer-Policy: strict-origin-when-cross-origin
   X-Frame-Options: SAMEORIGIN
 
-# 圖片與影片：快取一天。
-# 注意：檔名沒有版本號，所以換圖後同名檔案在瀏覽器端最多可能延遲一天才更新。
-# 想立刻生效就改檔名（例如 shot_boss2.webp）。
+# ⚠️ 這裡曾經設 max-age=86400（快取一天），結果換圖之後線上一整天還是舊圖，
+#    因為檔名沒變、瀏覽器根本不會回來問（見 PROBLEMS.md W12）。
+#
+#    現在改成「每次都回來問，但沒變就回 304」：
+#    伺服器會附 ETag，檔案沒變時回傳 304（幾乎零流量），變了才傳新的。
+#    代價是每張圖多一次來回，對這種規模的網站可以忽略；
+#    換來的是「推上去就一定看得到新圖」。
 /assets/*
-  Cache-Control: public, max-age=86400
+  Cache-Control: public, max-age=0, must-revalidate
 
 /video/*
-  Cache-Control: public, max-age=86400
+  Cache-Control: public, max-age=0, must-revalidate
 
 # HTML 每次都跟伺服器確認，確保改版立刻看得到。
 /
@@ -21,3 +25,10 @@
 
 /index.html
   Cache-Control: public, max-age=0, must-revalidate
+
+/devlog.html
+  Cache-Control: public, max-age=0, must-revalidate
+
+# 字型／圖示這類「一旦上線就不會再改」的東西，才適合長期快取。
+/favicon.ico
+  Cache-Control: public, max-age=604800
