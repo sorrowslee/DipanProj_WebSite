@@ -73,6 +73,10 @@ section{position:relative;z-index:1}
 .logo::before{content:"";position:absolute;left:50%;top:52%;transform:translate(-50%,-50%);
   width:132%;height:180%;pointer-events:none;filter:blur(34px);
   background:radial-gradient(ellipse 74% 88% at 50% 50%, rgba(8,5,4,.72), rgba(8,5,4,.34) 50%, transparent 78%)}
+/* 註：底下的 .v-ash / .v-soot / .v-gold 三個變體，是「用網頁文字排標題」時代留下的。
+   現在中英文都改用遊戲內的火焰圖，這幾段已經沒有元素會套用到。
+   刻意留著——哪天想改回純文字標題（例如要做可選取的文字、或想省那 150KB），
+   把 .mark 的 span 放回 hero 就能直接用。 */
 .mark{position:relative;display:block;line-height:1.06}
 
 /* — 變體 A：燼白（預設）字如骨灰，只留極淡的火光殘留 — */
@@ -114,14 +118,16 @@ section{position:relative;z-index:1}
   filter:drop-shadow(0 1px 0 rgba(255,240,205,.35)) drop-shadow(0 3px 20px rgba(0,0,0,.85)) drop-shadow(0 0 60px rgba(255,150,60,.28));
 }
 
-/* 中文標題＝遊戲內的火焰書法圖 */
-.mark-img{position:relative;width:min(560px,84vw);height:auto;
+/* 中英文標題都是遊戲內的火焰書法圖 */
+.mark-img{position:relative;height:auto;
   filter:drop-shadow(0 4px 26px rgba(0,0,0,.75)) drop-shadow(0 0 46px rgba(255,110,40,.22))}
-/* 英文標題＝網頁元素做的字（遊戲內的英文標題圖仍是舊名，故不沿用） */
-.mark.en{font-family:var(--display);font-size:clamp(30px,6.6vw,86px);letter-spacing:.16em;margin-left:.16em}
-.mark.en{display:none}
+/* 兩張的長寬比不同（中文 2.67、英文 3.45，英文字多所以更扁），
+   用同一個寬度的話英文會矮一截。這裡分別給寬度，讓兩者的「視覺高度」對齊。 */
+.mark-img.zh{width:min(560px,84vw)}
+.mark-img.en{width:min(625px,88vw)}
+.mark-img.en{display:none}
 html[lang="en"] .mark-img.zh{display:none}
-html[lang="en"] .mark.en{display:block}
+html[lang="en"] .mark-img.en{display:block}
 
 .wordmark{margin:30px 0 0;font-size:clamp(16px,2.6vw,26px);color:rgba(250,244,236,.9);
   text-shadow:0 2px 26px rgba(0,0,0,.8)}
@@ -385,7 +391,7 @@ footer .fmark{width:22px;margin:0 auto 24px;opacity:.24}
   <div class="hero-inner">
     <div class="logo v-soot" id="logo">
       <img class="mark-img zh" src="assets/logo.webp" alt="燃燈劫">
-      <span class="mark en">LAMPBLACK</span>
+      <img class="mark-img en" src="assets/logo_en.webp" alt="LAMPBLACK">
     </div>
     <h1 class="wordmark"><span class="wm zh">LAMPBLACK</span><span class="wm en">燃燈劫</span></h1>
     <div class="sub">Rebirth of Ruin</div>

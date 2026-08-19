@@ -140,6 +140,40 @@ def build_bloodlines():
             print(f"  {out_name}.webp  {im.width}x{BLOOD_HEIGHT}  {os.path.getsize(dst)//1024}KB")
 
 
+# ---------- 標題 logo ----------
+# 遊戲內的火焰書法標題，透明底。首頁 hero 用。
+# 中英文兩張的「留白比例」不一樣，所以這裡一律裁到實際筆畫邊界（alpha bbox），
+# 版面那邊才好用一個寬度值把兩張的視覺高度對齊。
+LOGO_DIR = os.path.join(ROOT, "遊戲內資源", "遊戲內圖片")
+LOGO_WIDTH = 1250        # 輸出寬度；網頁上顯示約 625px，2 倍供高解析螢幕用
+LOGO_QUALITY = 86
+LOGO_MAP = {
+    # 來源檔名（不含副檔名）: 輸出名
+    "TitlePanel_Title": "logo_en",
+}
+# ⚠️ 中文的 logo.webp 沒有走這條路徑——它的原始檔不在這個 repo 裡，
+#    是 2026-08 手動轉好直接放進 public/assets/ 的。
+#    哪天要重做中文標題，記得把原始 PNG 也丟進 遊戲內圖片/ 並在上面加一行。
+
+
+def build_logos():
+    if not os.path.isdir(LOGO_DIR):
+        return
+    print("\n標題 logo：")
+    for src_name, out_name in LOGO_MAP.items():
+        src = os.path.join(LOGO_DIR, src_name + ".png")
+        if not os.path.isfile(src):
+            print(f"  （找不到 {src_name}.png，略過）")
+            continue
+        im = Image.open(src).convert("RGBA")
+        im = im.crop(im.getbbox())      # 裁到實際筆畫邊界
+        h = round(im.height * LOGO_WIDTH / im.width)
+        im = im.resize((LOGO_WIDTH, h), Image.LANCZOS)
+        dst = os.path.join(OUT_DIR, out_name + ".webp")
+        im.save(dst, "WEBP", quality=LOGO_QUALITY, method=6)
+        print(f"  {out_name}.webp  {LOGO_WIDTH}x{h}  {os.path.getsize(dst)//1024}KB")
+
+
 def main():
     if not os.path.isdir(SHOTS_DIR):
         sys.exit(f"找不到截圖資料夾：{SHOTS_DIR}")
@@ -175,6 +209,7 @@ def main():
               "再到 index.html 加對應區塊（見 README「更新截圖」）。")
 
     build_bloodlines()
+    build_logos()
 
 
 if __name__ == "__main__":

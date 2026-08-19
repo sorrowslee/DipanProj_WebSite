@@ -32,7 +32,10 @@ DipanProj_WebSite/
 │
 ├── 遊戲內資源/            ← 原始素材（不會上網，只是留著當來源）
 │   ├── 截圖/
-│   └── 影片/
+│   ├── 影片/
+│   ├── 血統/              ← 各血統的角色立繪（透明底）
+│   ├── 遊戲內圖片/         ← 標題 logo 等遊戲內美術元件
+│   └── 開發日誌/
 │
 ├── tools/
 │   ├── dev-server.js         ← 本地預覽伺服器（npm run dev）
@@ -114,6 +117,27 @@ npm run assets
 ```
 
 腳本會自動壓成 WebP、裁掉截圖邊緣的黑色信箱框。需要 Pillow：`pip3 install Pillow`
+
+---
+
+## 換標題 logo
+
+首頁的中英文標題都是**遊戲內的火焰書法圖**，不是網頁文字。
+
+新的 logo PNG（透明底）丟進 `遊戲內資源/遊戲內圖片/`，
+在 `tools/build_assets.py` 的 `LOGO_MAP` 加一行，然後 `npm run assets`。
+
+腳本會裁到實際筆畫邊界（alpha bbox）再等比縮放，所以原始檔的留白多少都沒關係。
+
+⚠️ **中英文兩張的長寬比不一樣**（中文約 2.67、英文約 3.45，因為英文字母多所以更扁）。
+用同一個寬度的話英文會矮一截，所以 `index.html` 裡是**分開給寬度**的：
+
+```css
+.mark-img.zh{width:min(560px,84vw)}
+.mark-img.en{width:min(625px,88vw)}
+```
+
+換了 logo 之後如果比例變了，這兩個數字要重算，目標是讓兩者的**視覺高度**一致。
 
 ---
 
@@ -231,10 +255,15 @@ git push
 
 - [ ] Steam 頁面上線後，把 `public/index.html` 的 `#wishBtn` 從 `<button>` 換回 `<a href="Steam網址">`
       （目前點下去只會浮出「Steam 頁面籌備中」提示）
-- [ ] 英文標題 logo 重製（遊戲內 `TitlePanel_EN.png` 仍寫著舊名 Burning Lamp；
-      現在英文版標題是用 CSS 排的字，不是圖）
+- [x] ~~英文標題 logo 重製~~
+      → 2026-08-19 完成。新的火焰書法 LAMPBLACK 放在
+      `遊戲內資源/遊戲內圖片/TitlePanel_Title.png`，`npm run assets` 會壓成
+      `public/assets/logo_en.webp`。中英文標題現在都是圖，不再是 CSS 排的字。
 - [ ] 之後若要自架字體，把 Google Fonts 換成本地檔案（現在依賴外部 CDN）
-- [ ] 驗證 `_headers` 在 Workers 靜態資源模式下是否真的生效
+- [x] ~~驗證 `_headers` 在 Workers 靜態資源模式下是否真的生效~~
+      → 確定生效。2026-08-18 換圖後線上還是舊圖，正是因為裡面的 `max-age=86400`
+      真的被套用了（見 PROBLEMS.md W7）。Cloudflare 靜態資源的預設值本來就是
+      `max-age=0, must-revalidate`，現在改回等同預設。
 - [ ] 補一份 wrangler 設定檔，把「發布 `public/`」寫進版控
 
 ---

@@ -19,8 +19,12 @@ node_modules/
 *.tar.gz
 *.zip
 _to_delete/
+_stage/
 
 # 暫存
 *.log
 tmp/
+
+# 原始素材（截圖／影片／立繪／logo 原檔）
+# 只留在本機，不進版控——檔案大、而且 public/assets/ 裡已經有壓好的版本
 遊戲內資源/
