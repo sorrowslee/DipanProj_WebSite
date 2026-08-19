@@ -1,6 +1,6 @@
 # LAMPBLACK 官方網站
 
-《燃燈劫》/ **LAMPBLACK: Rebirth of Ruin** 的官方宣傳網站。
+《燃燈劫》/ **LAMPBLACK** 的官方宣傳網站。
 
 - 正式網址：**https://thelampblack.com**（2026-08-14 上線）
 - 主機：Cloudflare **Worker（靜態資源模式）**，專案名 `dipanproj-website`

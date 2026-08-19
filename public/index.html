@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>LAMPBLACK — 燃燈劫</title>
-<meta name="description" content="LAMPBLACK: Rebirth of Ruin — 2D 俯視角恐怖動作 Roguelite。輪迴的盡頭，依舊是輪迴。">
+<meta name="description" content="LAMPBLACK 燃燈劫 — 2D 俯視角恐怖動作 Roguelite。輪迴的盡頭，依舊是輪迴。">
 <link rel="canonical" href="https://thelampblack.com/">
 <meta property="og:title" content="LAMPBLACK — 燃燈劫">
 <meta property="og:description" content="輪迴的盡頭，依舊是輪迴。">
@@ -69,7 +69,7 @@ section{position:relative;z-index:1}
 .hero-inner{position:relative;z-index:2;text-align:center;padding:0 24px;max-width:1000px}
 
 /* ===== 標題（全部用網頁元素做） ===== */
-.logo{position:relative;display:inline-block;padding:0 .1em}
+.logo{position:relative;display:inline-block;padding:0 .1em;margin:0;font-weight:inherit}
 .logo::before{content:"";position:absolute;left:50%;top:52%;transform:translate(-50%,-50%);
   width:132%;height:180%;pointer-events:none;filter:blur(34px);
   background:radial-gradient(ellipse 74% 88% at 50% 50%, rgba(8,5,4,.72), rgba(8,5,4,.34) 50%, transparent 78%)}
@@ -129,18 +129,10 @@ section{position:relative;z-index:1}
 html[lang="en"] .mark-img.zh{display:none}
 html[lang="en"] .mark-img.en{display:block}
 
-.wordmark{margin:30px 0 0;font-size:clamp(16px,2.6vw,26px);color:rgba(250,244,236,.9);
-  text-shadow:0 2px 26px rgba(0,0,0,.8)}
-.wordmark .wm{display:none}
-.wordmark .wm.zh{font-family:var(--display);font-weight:500;letter-spacing:.42em;margin-left:.42em}
-.wordmark .wm.en{font-family:var(--serif);font-weight:500;letter-spacing:.34em;margin-left:.34em}
-html[lang="zh-Hant"] .wordmark .wm.zh{display:block}
-html[lang="en"]      .wordmark .wm.en{display:block}
-
-.sub{font-family:var(--display);font-size:clamp(9px,1.15vw,12px);letter-spacing:.48em;
-  color:var(--ember-hi);margin:16px 0 0 .48em;text-transform:uppercase;
-  text-shadow:0 0 22px rgba(255,120,50,.55)}
-.hook{margin-top:50px;font-size:clamp(17px,2.3vw,25px);line-height:2.2;
+/* 這裡原本還有兩行：另一個語言的標題（.wordmark）和副標 Rebirth of Ruin（.sub）。
+   2026-08-19 移除——副標不用了，而且「中文版硬塞英文、英文版硬塞中文」很奇怪。
+   拿掉之後 hook 直接接在 logo 下面，間距改由 .hook 的 margin-top 控制。 */
+.hook{margin-top:62px;font-size:clamp(17px,2.3vw,25px);line-height:2.2;
   color:rgba(250,244,238,.94);text-shadow:0 2px 24px rgba(0,0,0,.9)}
 .genre{margin-top:36px;font-size:clamp(12px,1.4vw,13.5px);letter-spacing:.26em;color:var(--muted)}
 .cue{position:absolute;bottom:34px;left:50%;transform:translateX(-50%);z-index:3;width:1px;height:60px;
@@ -389,12 +381,12 @@ footer .fmark{width:22px;margin:0 auto 24px;opacity:.24}
 <section class="hero">
   <div class="hero-bg"><img src="assets/hero.webp" alt=""></div>
   <div class="hero-inner">
-    <div class="logo v-soot" id="logo">
+    <!-- logo 圖本身就是這一頁的 h1。原本 h1 是底下那行「LAMPBLACK／燃燈劫」，
+         那行拿掉之後如果不接手，整頁會變成沒有 h1。 -->
+    <h1 class="logo v-soot" id="logo">
       <img class="mark-img zh" src="assets/logo.webp" alt="燃燈劫">
       <img class="mark-img en" src="assets/logo_en.webp" alt="LAMPBLACK">
-    </div>
-    <h1 class="wordmark"><span class="wm zh">LAMPBLACK</span><span class="wm en">燃燈劫</span></h1>
-    <div class="sub">Rebirth of Ruin</div>
+    </h1>
     <div class="hook"
       data-zh="輪迴的盡頭，依舊是輪迴。"
       data-en="At the end of the cycle — another cycle."></div>
@@ -647,7 +639,7 @@ footer .fmark{width:22px;margin:0 auto 24px;opacity:.24}
 
 <footer>
   <img class="fmark" src="assets/manji.webp" alt="">
-  <div data-zh="《燃燈劫》LAMPBLACK: Rebirth of Ruin" data-en="LAMPBLACK: Rebirth of Ruin"></div>
+  <div data-zh="《燃燈劫》LAMPBLACK" data-en="LAMPBLACK"></div>
   <div>© 2026 · thelampblack.com</div>
 </footer>
 
@@ -660,7 +652,7 @@ footer .fmark{width:22px;margin:0 auto 24px;opacity:.24}
 const NODES  = document.querySelectorAll('[data-zh]');
 const BTN_ZH = document.getElementById('zh');
 const BTN_EN = document.getElementById('en');
-const META = { zh:{lang:'zh-Hant',title:'LAMPBLACK — 燃燈劫'}, en:{lang:'en',title:'LAMPBLACK — Rebirth of Ruin'} };
+const META = { zh:{lang:'zh-Hant',title:'LAMPBLACK — 燃燈劫'}, en:{lang:'en',title:'LAMPBLACK'} };
 function setLang(l){
   NODES.forEach(n => n.innerHTML = (n.dataset[l] || '').replace(/\n/g,'<br>'));
   document.documentElement.lang = META[l].lang;

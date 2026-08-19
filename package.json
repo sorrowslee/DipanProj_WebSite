@@ -2,7 +2,7 @@
   "name": "lampblack-site",
   "version": "1.0.0",
   "private": true,
-  "description": "《燃燈劫》LAMPBLACK: Rebirth of Ruin 官方網站",
+  "description": "《燃燈劫》LAMPBLACK 官方網站",
   "homepage": "https://thelampblack.com",
   "scripts": {
     "dev": "node tools/dev-server.js",
