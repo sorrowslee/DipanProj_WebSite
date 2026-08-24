@@ -111,10 +111,49 @@ def convert(src, dst_name, width, quality, keep_alpha=False, trim=True, crop_bot
 BLOOD_DIR = os.path.join(ROOT, "遊戲內資源", "血統")
 BLOOD_HEIGHT = 560
 BLOOD_QUALITY = 86
+# 第三個欄位 hidden=True 代表「這一階還不公開」，會輸出成剪影而不是原圖。
+# 網站上對應的名稱要一起改成 ???（見 index.html 的 .bl-unknown）。
+# 之後要公開就把 True 改成 False，重跑 npm run assets——輸出檔名不變，
+# 所以 index.html 的 <img src> 不用動。
 BLOOD_MAP = {
-    # 資料夾名稱: [(來源檔名（不含副檔名）, 輸出名), ...]
-    "殭屍": [("1.殭屍", "bl_zombie1"), ("2.毛殭", "bl_zombie2"), ("3.旱魃", "bl_zombie3")],
+    # 資料夾名稱: [(來源檔名（不含副檔名）, 輸出名, 是否隱藏), ...]
+    "殭屍": [
+        ("1.殭屍", "bl_zombie1", False),
+        ("2.毛殭", "bl_zombie2", True),
+        ("3.旱魃", "bl_zombie3", True),
+    ],
 }
+
+SIL_FILL = (14, 11, 9)        # 剪影本體的顏色。不是純黑——純黑在深色底上會整團消失
+SIL_RIM = (255, 132, 60)      # 邊緣餘燼光的顏色
+SIL_GROW = 9                  # 邊緣光往外擴幾像素
+SIL_BLUR = 3
+
+
+def to_silhouette(im):
+    """把角色立繪壓成剪影：整片填暗色，外圍描一圈餘燼光。
+
+    只用 alpha 通道當遮罩，所以原圖的任何細節（毛色、發光紋路）都不會殘留。
+    ——試過「保留一點內部明暗」的版本，結果二階的白毛和三階的紋路還是看得出來，
+       等於沒藏，所以這裡走完全填色。
+    """
+    from PIL import ImageFilter, ImageChops
+    a = im.split()[3]
+
+    body = Image.new("RGBA", im.size, SIL_FILL + (0,))
+    body.putalpha(a)
+
+    # alpha 外擴後減掉原本的 alpha = 一圈輪廓，再模糊成光暈
+    edge = ImageChops.subtract(a.filter(ImageFilter.MaxFilter(SIL_GROW)), a)
+    edge = edge.filter(ImageFilter.GaussianBlur(SIL_BLUR))
+    edge = edge.point(lambda v: min(255, int(v * 0.88)))
+    glow = Image.new("RGBA", im.size, SIL_RIM + (0,))
+    glow.putalpha(edge)
+
+    out = Image.new("RGBA", im.size, (0, 0, 0, 0))
+    out.alpha_composite(glow)     # 光在下
+    out.alpha_composite(body)     # 身體在上
+    return out
 
 
 def build_bloodlines():
@@ -126,7 +165,7 @@ def build_bloodlines():
         if not os.path.isdir(src_dir):
             print(f"  （找不到 {folder}/，略過）")
             continue
-        for src_name, out_name in items:
+        for src_name, out_name, hidden in items:
             src = os.path.join(src_dir, src_name + ".png")
             if not os.path.isfile(src):
                 print(f"  （找不到 {folder}/{src_name}.png，略過）")
@@ -135,9 +174,13 @@ def build_bloodlines():
             im = im.crop(im.getbbox())          # 去掉四周多餘的透明區
             w = round(im.width * BLOOD_HEIGHT / im.height)
             im = im.resize((w, BLOOD_HEIGHT), Image.LANCZOS)
+            if hidden:
+                im = to_silhouette(im)
             dst = os.path.join(OUT_DIR, out_name + ".webp")
             im.save(dst, "WEBP", quality=BLOOD_QUALITY, method=6)
-            print(f"  {out_name}.webp  {im.width}x{BLOOD_HEIGHT}  {os.path.getsize(dst)//1024}KB")
+            tag = "  ← 剪影（未公開）" if hidden else ""
+            print(f"  {out_name}.webp  {im.width}x{BLOOD_HEIGHT}  "
+                  f"{os.path.getsize(dst)//1024}KB{tag}")
 
 
 # ---------- 標題 logo ----------

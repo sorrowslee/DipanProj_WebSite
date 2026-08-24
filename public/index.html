@@ -267,11 +267,16 @@ html[lang="en"] .card h3{font-family:var(--display);font-size:clamp(16px,1.9vw,2
 html[lang="en"] .bl-stage{font-family:var(--display);font-size:11px;letter-spacing:.28em;text-transform:uppercase}
 .bl h3{font-weight:500;font-size:clamp(21px,2.7vw,29px);letter-spacing:.2em;margin-bottom:8px}
 /* 名稱顏色跟著階段一起升溫：冷白 → 暖白 → 火色，呼應腳下光暈的遞增 */
+/* 未公開的階段：??? 拉開字距、稍微壓暗，讀起來像「被藏起來」而不是像一個名字。
+   顏色仍沿用各階原本的（第三階還是餘燼色＋發光），才看得出階級遞進。 */
+.bl-unknown{letter-spacing:.28em;opacity:.72}
 .bl-1 h3{color:rgba(226,222,216,.88)}
 .bl-2 h3{color:rgba(252,243,228,.97);text-shadow:0 0 22px rgba(255,150,80,.20)}
 .bl-3 h3{color:var(--ember-hi);text-shadow:0 0 30px rgba(255,143,77,.5)}
+/* min-height：未公開的階段這一格是空的（拼音會洩漏名字），
+   但空格子還是要佔位，否則三欄的說明文字會對不齊。 */
 .bl-rom{font-family:var(--display);font-size:11px;letter-spacing:.28em;
-  color:rgba(240,229,217,.34);text-transform:uppercase;margin-bottom:18px}
+  color:rgba(240,229,217,.34);text-transform:uppercase;margin-bottom:18px;min-height:1.9em}
 /* 英文版這一格放的是漢字，改用襯線體並收窄字距 */
 html[lang="en"] .bl-rom{font-family:var(--serif);font-size:13px;letter-spacing:.2em;text-transform:none}
 /* 用 em 控寬度，中文一行約 19 個字才不會斷成孤字 */
@@ -503,8 +508,11 @@ footer .fmark{width:22px;margin:0 auto 24px;opacity:.24}
       <div class="bl bl-2 rv">
         <div class="bl-fig"><img src="assets/bl_zombie2.webp" alt="" loading="lazy"></div>
         <div class="bl-stage" data-zh="中階" data-en="Second Form"></div>
-        <h3 data-zh="毛殭" data-en="Maojiang"></h3>
-        <div class="bl-rom" data-zh="Maojiang" data-en="毛殭"></div>
+        <!-- 二、三階刻意不公開：名稱一律 ??? ，拼音那格留空（寫什麼都會洩漏）。
+             之後要公開的話，把名字填回來，並到 build_assets.py 的 BLOOD_MAP
+             把這一階的 hidden 改成 False，重跑 npm run assets 即可。 -->
+        <h3 class="bl-unknown" data-zh="???" data-en="???"></h3>
+        <div class="bl-rom" data-zh="" data-en=""></div>
         <p data-zh="白毛覆體，爪牙成形。多一分力氣，就少一分神智。"
            data-en="White fur, claws, fangs. Every measure of strength costs a measure of mind."></p>
       </div>
@@ -514,8 +522,8 @@ footer .fmark{width:22px;margin:0 auto 24px;opacity:.24}
       <div class="bl bl-3 rv">
         <div class="bl-fig"><img src="assets/bl_zombie3.webp" alt="" loading="lazy"></div>
         <div class="bl-stage" data-zh="最終" data-en="Final Form"></div>
-        <h3 data-zh="旱魃" data-en="Hanba"></h3>
-        <div class="bl-rom" data-zh="Hanba · Drought God" data-en="旱魃"></div>
+        <h3 class="bl-unknown" data-zh="???" data-en="???"></h3>
+        <div class="bl-rom" data-zh="" data-en=""></div>
         <p data-zh="旱災之神。祂走過的地方，千里之內不落一滴雨。"
            data-en="The drought god. Where it walks, no rain falls for a thousand li."></p>
       </div>
