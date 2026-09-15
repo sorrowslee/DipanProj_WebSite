@@ -33,7 +33,7 @@ DipanProj_WebSite/
 ├── 遊戲內資源/            ← 原始素材（不會上網，只是留著當來源）
 │   ├── 截圖/
 │   ├── 影片/
-│   ├── 血統/              ← 各血統的角色立繪（透明底）
+│   ├── 血統/              ← 各血統三階的立繪（透明底，跑 sync_bloodline.py 從遊戲專案抓）
 │   ├── 遊戲內圖片/         ← 標題 logo 等遊戲內美術元件
 │   └── 開發日誌/
 │
@@ -41,6 +41,7 @@ DipanProj_WebSite/
 │   ├── dev-server.js         ← 本地預覽伺服器（npm run dev）
 │   ├── build_assets.py       ← 把 遊戲內資源/截圖/ 壓成 public/assets/
 │   ├── build_devlog.py       ← 從主專案 git 紀錄產生 public/devlog.html
+│   ├── sync_bloodline.py     ← 從遊戲專案抓各血統的立繪來源圖
 │   └── devlog_template.html  ← 開發日誌的版型與里程碑文案
 │
 ├── package.json
@@ -138,6 +139,38 @@ npm run assets
 ```
 
 換了 logo 之後如果比例變了，這兩個數字要重算，目標是讓兩者的**視覺高度**一致。
+
+---
+
+## 更新血統
+
+血統區是**左右切換的輪播**，一條血統一頁（目前八條，以遊戲專案 `Assets/Data/BloodlineSeriesTable.csv` 為準）。
+每頁固定三階：第一階公開，第二、三階是剪影＋`???`。
+
+要同步遊戲那邊的血統，跑這兩行：
+
+```bash
+python3 tools/sync_bloodline.py   # 從 ../DipanProj 抓立繪來源
+npm run assets                    # 壓成 public/assets/bl_*.webp
+```
+
+`sync_bloodline.py` 抓的是每個血統 **idle 動畫的第一幀**（256×256 透明底），
+放進 `遊戲內資源/血統/<系列Key>/<階>_<角色>.png`。它對遊戲專案唯讀，只複製出來。
+
+> ⚠ 來源只有 256px，所以 `build_assets.py` 放大時一律用 **NEAREST**（LANCZOS 會插值成一團糊）。
+> 舊的 `遊戲內資源/血統/殭屍/`（500px 像素版立繪）還留著，但網站已經不用它了。
+
+### 加一條新血統
+
+1. `tools/sync_bloodline.py` 的 `SERIES` 加一行（角色資料夾名要和遊戲 `BloodlineTable.csv` 的 `SpriteFolder` 後半一致，含空白）
+2. `tools/build_assets.py` 的 `BLOOD_MAP` 加對應三筆（輸出名、是否隱藏）
+3. `public/index.html` 的 `#blDeck` 裡複製一個 `.bl-group` 區塊改文字與圖檔名——
+   左右按鈕與下方的圓點是 JS 依 `.bl-group` 數量自動長出來的，**數量不用另外改**
+
+### 公開某一階的名字
+
+`BLOOD_MAP` 把那一階的 `hidden` 改 `False` → `npm run assets`（輸出檔名不變），
+再到 `index.html` 把該格的 `???` 換成名字、`.bl-rom` 那格補回拼音。
 
 ---
 

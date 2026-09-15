@@ -235,7 +235,7 @@ html[lang="en"] .card h3{font-family:var(--display);font-size:clamp(16px,1.9vw,2
 .bl-fam-name{font-weight:500;font-size:clamp(24px,3.4vw,36px);letter-spacing:.24em;
   color:rgba(252,247,242,.97);margin-bottom:16px;text-shadow:0 0 34px rgba(255,143,77,.22)}
 .bl-fam-desc{font-size:clamp(13.5px,1.6vw,16px);line-height:2.1;color:var(--muted);
-  max-width:34em;margin:0 auto}
+  max-width:34em;margin:0 auto;text-wrap:balance}
 /* 家族名稱下的分隔線，把「這一條血統」和「它的三個階段」分開 */
 .bl-fam::after{content:"";display:block;width:clamp(40px,7vw,90px);height:1px;
   margin:clamp(26px,3.4vh,38px) auto 0;
@@ -280,13 +280,36 @@ html[lang="en"] .bl-stage{font-family:var(--display);font-size:11px;letter-spaci
 /* 英文版這一格放的是漢字，改用襯線體並收窄字距 */
 html[lang="en"] .bl-rom{font-family:var(--serif);font-size:13px;letter-spacing:.2em;text-transform:none}
 /* 用 em 控寬度，中文一行約 19 個字才不會斷成孤字 */
+/* text-wrap:balance＝讓瀏覽器把每一行的長度拉平，避免「第二行只剩兩個字」那種孤行。
+   只對少數幾行的短段落有效（正是這裡的用途），不支援的瀏覽器會忽略它、退回原本的斷法。
+   ⚠ 它是「拉平行長」不是「換行位置隨你指定」，所以文案本身仍以一到兩行讀得完為準。 */
 .bl p{font-size:clamp(13px,1.55vw,15px);line-height:2.1;color:var(--muted);
-  max-width:19em;margin:0 auto}
+  max-width:19em;margin:0 auto;text-wrap:balance}
 html[lang="en"] .bl p{max-width:26em}
 /* 階段之間的箭頭 */
 /* 箭頭對齊角色圖的垂直中線（.bl-fig 高度的一半） */
 .bl-arrow{align-self:start;margin-top:calc(clamp(210px,26vw,320px) / 2);
   color:rgba(255,143,77,.45);font-size:clamp(18px,2.4vw,26px);line-height:1;user-select:none}
+
+/* ---------- 血統輪播 ---------- */
+/* 八條血統疊在同一個 grid 格子裡：容器高度＝最長的那一條，切換時不會忽高忽低 */
+.bl-deck{display:grid}
+.bl-deck > .bl-group{grid-area:1/1;opacity:0;visibility:hidden;pointer-events:none;
+  transition:opacity .5s ease}
+.bl-deck > .bl-group.on{opacity:1;visibility:visible;pointer-events:auto;
+  animation:blFade .55s ease both}
+@keyframes blFade{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+/* 導覽列沿用武器卷軸那組按鈕的語彙（同尺寸、同 hover），中間多一排階段點 */
+.bl-nav{display:flex;gap:clamp(12px,2vw,22px);justify-content:center;align-items:center;margin-top:30px}
+.bl-nav > button{width:46px;height:46px;background:none;border:1px solid var(--line);
+  color:var(--muted);cursor:pointer;font-size:17px;line-height:1;transition:all .4s;flex:0 0 auto}
+.bl-nav > button:hover{border-color:rgba(255,143,77,.6);color:var(--ember-hi);background:rgba(255,143,77,.07)}
+.bl-dots{display:flex;gap:10px;align-items:center;flex-wrap:wrap;justify-content:center}
+.bl-dots button{width:9px;height:9px;padding:0;border-radius:50%;cursor:pointer;
+  border:1px solid rgba(255,226,200,.32);background:none;transition:all .4s}
+.bl-dots button:hover{border-color:rgba(255,143,77,.7)}
+.bl-dots button.on{background:var(--ember);border-color:var(--ember);
+  box-shadow:0 0 12px rgba(255,143,77,.55)}
 
 /* ---------- 武器橫向卷軸 ---------- */
 /* 卷軸寬度＝內容欄寬度，卡片剛好排滿三張，左右兩側自然對齊其他區塊 */
@@ -362,6 +385,8 @@ footer .fmark{width:22px;margin:0 auto 24px;opacity:.24}
   .bl-row{grid-template-columns:1fr;gap:14px}
   .bl-arrow{margin:0 auto;transform:rotate(90deg)}   /* 直排時要清掉上面的 margin-top */
   .bl{padding-bottom:14px}
+  /* 直排時三階是上下排列、不需要互相對齊，未公開階段的空拼音格就不必再佔一行高 */
+  .bl-rom:empty{min-height:0;margin-bottom:0}
 }
 @media(max-width:620px){ .wcard{flex:0 0 100%} }
 @media(max-width:800px){
@@ -481,54 +506,322 @@ footer .fmark{width:22px;margin:0 auto 24px;opacity:.24}
        data-en="Tired of a weak human body?&#10;There is another road."></p>
   </div>
 
-  <div class="blood">
-   <div class="bl-group rv">
+  <div class="blood rv">
+   <!-- 八條血統疊在同一格 grid 裡（.bl-deck），一次只有 .on 那一條看得見。
+        疊著而不是換掉，是為了讓容器高度一直等於最長的那一條，切換時版面不會跳。 -->
+   <div class="bl-deck" id="blDeck">
+    <div class="bl-group on" data-i="0" role="group" aria-roledescription="slide">
+      <header class="bl-fam">
+        <div class="bl-fam-tag" data-zh="血統之一" data-en="Bloodline I"></div>
+        <h3 class="bl-fam-name" data-zh="殭屍血統" data-en="The Jiangshi Line"></h3>
+        <p class="bl-fam-desc" data-zh="人類的成分越來越少，取而代之的是越來越強的神靈之力"
+           data-en="Less and less of the human remains; what fills the space is divine, and it is stronger."></p>
+      </header>
 
-    <header class="bl-fam">
-      <div class="bl-fam-tag" data-zh="血統之一" data-en="Bloodline I"></div>
-      <h3 class="bl-fam-name" data-zh="殭屍血統" data-en="The Jiangshi Line"></h3>
-      <p class="bl-fam-desc"
-         data-zh="人類的成分越來越少，取而代之的是越來越強的神靈之力"
-         data-en="Less and less of the human remains; what fills the space is divine, and it is stronger."></p>
-    </header>
-
-    <div class="bl-row">
-
-      <div class="bl bl-1 rv">
-        <div class="bl-fig"><img src="assets/bl_zombie1.webp" alt="" loading="lazy"></div>
-        <div class="bl-stage" data-zh="初階" data-en="First Form"></div>
-        <h3 data-zh="殭屍" data-en="Jiangshi"></h3>
-        <div class="bl-rom" data-zh="Jiangshi" data-en="殭屍"></div>
-        <p data-zh="你不再需要呼吸。同時也不再是人。"
-           data-en="You no longer need to breathe. You are also no longer human."></p>
+      <div class="bl-row">
+        <div class="bl bl-1">
+          <div class="bl-fig"><img src="assets/bl_jiangshi1.webp" alt="" loading="lazy"></div>
+          <div class="bl-stage" data-zh="初階" data-en="First Form"></div>
+          <h3 data-zh="殭屍" data-en="Jiangshi"></h3>
+          <div class="bl-rom" data-zh="Jiangshi" data-en="殭屍"></div>
+          <p data-zh="你不再需要呼吸。同時也不再是人。"
+             data-en="You no longer need to breathe. You are also no longer human."></p>
+        </div>
+        <div class="bl-arrow" aria-hidden="true">&rsaquo;</div>
+        <div class="bl bl-2">
+          <div class="bl-fig"><img src="assets/bl_jiangshi2.webp" alt="" loading="lazy"></div>
+          <div class="bl-stage" data-zh="中階" data-en="Second Form"></div>
+          <h3 class="bl-unknown" data-zh="???" data-en="???"></h3>
+          <div class="bl-rom" data-zh="" data-en=""></div>
+          <p data-zh="白毛覆體，爪牙成形。多一分力氣，就少一分神智。"
+             data-en="White fur, claws, fangs. Every measure of strength costs a measure of mind."></p>
+        </div>
+        <div class="bl-arrow" aria-hidden="true">&rsaquo;</div>
+        <div class="bl bl-3">
+          <div class="bl-fig"><img src="assets/bl_jiangshi3.webp" alt="" loading="lazy"></div>
+          <div class="bl-stage" data-zh="最終" data-en="Final Form"></div>
+          <h3 class="bl-unknown" data-zh="???" data-en="???"></h3>
+          <div class="bl-rom" data-zh="" data-en=""></div>
+          <p data-zh="旱災之神。祂走過的地方，千里之內不落一滴雨。"
+             data-en="The drought god. Where it walks, no rain falls for a thousand li."></p>
+        </div>
       </div>
-
-      <div class="bl-arrow" aria-hidden="true">›</div>
-
-      <div class="bl bl-2 rv">
-        <div class="bl-fig"><img src="assets/bl_zombie2.webp" alt="" loading="lazy"></div>
-        <div class="bl-stage" data-zh="中階" data-en="Second Form"></div>
-        <!-- 二、三階刻意不公開：名稱一律 ??? ，拼音那格留空（寫什麼都會洩漏）。
-             之後要公開的話，把名字填回來，並到 build_assets.py 的 BLOOD_MAP
-             把這一階的 hidden 改成 False，重跑 npm run assets 即可。 -->
-        <h3 class="bl-unknown" data-zh="???" data-en="???"></h3>
-        <div class="bl-rom" data-zh="" data-en=""></div>
-        <p data-zh="白毛覆體，爪牙成形。多一分力氣，就少一分神智。"
-           data-en="White fur, claws, fangs. Every measure of strength costs a measure of mind."></p>
-      </div>
-
-      <div class="bl-arrow" aria-hidden="true">›</div>
-
-      <div class="bl bl-3 rv">
-        <div class="bl-fig"><img src="assets/bl_zombie3.webp" alt="" loading="lazy"></div>
-        <div class="bl-stage" data-zh="最終" data-en="Final Form"></div>
-        <h3 class="bl-unknown" data-zh="???" data-en="???"></h3>
-        <div class="bl-rom" data-zh="" data-en=""></div>
-        <p data-zh="旱災之神。祂走過的地方，千里之內不落一滴雨。"
-           data-en="The drought god. Where it walks, no rain falls for a thousand li."></p>
-      </div>
-
     </div>
+
+    <div class="bl-group" data-i="1" role="group" aria-roledescription="slide">
+      <header class="bl-fam">
+        <div class="bl-fam-tag" data-zh="血統之二" data-en="Bloodline II"></div>
+        <h3 class="bl-fam-name" data-zh="血族血統" data-en="The Crimson Line"></h3>
+        <p class="bl-fam-desc" data-zh="初嘗是鐵鏽，回甘是長夜。喝得越深，離太陽越遠"
+           data-en="First it tastes of rust, then of the long night. The deeper you drink, the further away the sun."></p>
+      </header>
+
+      <div class="bl-row">
+        <div class="bl bl-1">
+          <div class="bl-fig"><img src="assets/bl_bloodborn1.webp" alt="" loading="lazy"></div>
+          <div class="bl-stage" data-zh="初階" data-en="First Form"></div>
+          <h3 data-zh="覓血者" data-en="Bloodseeker"></h3>
+          <div class="bl-rom" data-zh="Bloodseeker" data-en="覓血者"></div>
+          <p data-zh="齒生尖鋒，晝伏夜出。從此太陽與你無關了。"
+             data-en="Fangs sharpen; you keep to the dark. The sun is no longer any business of yours."></p>
+        </div>
+        <div class="bl-arrow" aria-hidden="true">&rsaquo;</div>
+        <div class="bl bl-2">
+          <div class="bl-fig"><img src="assets/bl_bloodborn2.webp" alt="" loading="lazy"></div>
+          <div class="bl-stage" data-zh="中階" data-en="Second Form"></div>
+          <h3 class="bl-unknown" data-zh="???" data-en="???"></h3>
+          <div class="bl-rom" data-zh="" data-en=""></div>
+          <p data-zh="血中生貴氣，一眼可奪人心神。三百個夜，一口喝完。"
+             data-en="Nobility rises in the blood, and a single glance can take a mind. Three hundred nights, drained in one draught."></p>
+        </div>
+        <div class="bl-arrow" aria-hidden="true">&rsaquo;</div>
+        <div class="bl bl-3">
+          <div class="bl-fig"><img src="assets/bl_bloodborn3.webp" alt="" loading="lazy"></div>
+          <div class="bl-stage" data-zh="最終" data-en="Final Form"></div>
+          <h3 class="bl-unknown" data-zh="???" data-en="???"></h3>
+          <div class="bl-rom" data-zh="" data-en=""></div>
+          <p data-zh="血脈上溯無源。長夜盡處，仍有你站著。"
+             data-en="Trace the bloodline back and it has no source. At the end of the long night, you are still standing."></p>
+        </div>
+      </div>
+    </div>
+
+    <div class="bl-group" data-i="2" role="group" aria-roledescription="slide">
+      <header class="bl-fam">
+        <div class="bl-fam-tag" data-zh="血統之三" data-en="Bloodline III"></div>
+        <h3 class="bl-fam-name" data-zh="狂族血統" data-en="The Feral Line"></h3>
+        <p class="bl-fam-desc" data-zh="月亮成了你的主人。牠給你力氣，也收走你的名字"
+           data-en="The moon becomes your master. It lends you strength, and takes your name."></p>
+      </header>
+
+      <div class="bl-row">
+        <div class="bl bl-1">
+          <div class="bl-fig"><img src="assets/bl_feralborn1.webp" alt="" loading="lazy"></div>
+          <div class="bl-stage" data-zh="初階" data-en="First Form"></div>
+          <h3 data-zh="狼人" data-en="Werewolf"></h3>
+          <div class="bl-rom" data-zh="Werewolf" data-en="狼人"></div>
+          <p data-zh="月出則爪牙自生。天亮的時候，你還記得自己是誰。"
+             data-en="When the moon rises, claws and fangs come of their own. At daybreak you still remember who you were."></p>
+        </div>
+        <div class="bl-arrow" aria-hidden="true">&rsaquo;</div>
+        <div class="bl bl-2">
+          <div class="bl-fig"><img src="assets/bl_feralborn2.webp" alt="" loading="lazy"></div>
+          <div class="bl-stage" data-zh="中階" data-en="Second Form"></div>
+          <h3 class="bl-unknown" data-zh="???" data-en="???"></h3>
+          <div class="bl-rom" data-zh="" data-en=""></div>
+          <p data-zh="不必等月出，月自隨你而行。低吼已經變成了長嗥。"
+             data-en="No need to wait for moonrise; the moon follows you now. The growl has become a howl."></p>
+        </div>
+        <div class="bl-arrow" aria-hidden="true">&rsaquo;</div>
+        <div class="bl bl-3">
+          <div class="bl-fig"><img src="assets/bl_feralborn3.webp" alt="" loading="lazy"></div>
+          <div class="bl-stage" data-zh="最終" data-en="Final Form"></div>
+          <h3 class="bl-unknown" data-zh="???" data-en="???"></h3>
+          <div class="bl-rom" data-zh="" data-en=""></div>
+          <p data-zh="張口能吞下一輪滿月。"
+             data-en="Its jaws open wide enough to swallow a full moon."></p>
+        </div>
+      </div>
+    </div>
+
+    <div class="bl-group" data-i="3" role="group" aria-roledescription="slide">
+      <header class="bl-fam">
+        <div class="bl-fam-tag" data-zh="血統之四" data-en="Bloodline IV"></div>
+        <h3 class="bl-fam-name" data-zh="土裔血統" data-en="The Gaia Line"></h3>
+        <p class="bl-fam-desc" data-zh="血開始記得石頭的重量。走得越慢，越難被推倒"
+           data-en="The blood begins to remember the weight of stone. The slower it moves, the less the world can move it."></p>
+      </header>
+
+      <div class="bl-row">
+        <div class="bl bl-1">
+          <div class="bl-fig"><img src="assets/bl_gaiaborn1.webp" alt="" loading="lazy"></div>
+          <div class="bl-stage" data-zh="初階" data-en="First Form"></div>
+          <h3 data-zh="石像鬼" data-en="Gargoyle"></h3>
+          <div class="bl-rom" data-zh="Gargoyle" data-en="石像鬼"></div>
+          <p data-zh="皮肉化石，靜坐如簷上獸。你學會了等。"
+             data-en="Flesh turns to stone; you crouch still, a beast on the eaves. You have learned how to wait."></p>
+        </div>
+        <div class="bl-arrow" aria-hidden="true">&rsaquo;</div>
+        <div class="bl bl-2">
+          <div class="bl-fig"><img src="assets/bl_gaiaborn2.webp" alt="" loading="lazy"></div>
+          <div class="bl-stage" data-zh="中階" data-en="Second Form"></div>
+          <h3 class="bl-unknown" data-zh="???" data-en="???"></h3>
+          <div class="bl-rom" data-zh="" data-en=""></div>
+          <p data-zh="骨重如岳，步過處地為之陷。"
+             data-en="Bones heavy as mountains; the ground gives way where it steps."></p>
+        </div>
+        <div class="bl-arrow" aria-hidden="true">&rsaquo;</div>
+        <div class="bl bl-3">
+          <div class="bl-fig"><img src="assets/bl_gaiaborn3.webp" alt="" loading="lazy"></div>
+          <div class="bl-stage" data-zh="最終" data-en="Final Form"></div>
+          <h3 class="bl-unknown" data-zh="???" data-en="???"></h3>
+          <div class="bl-rom" data-zh="" data-en=""></div>
+          <p data-zh="起身與天同高。人間再無你容身之處。"
+             data-en="It stands, and stands as tall as the sky. The world of men no longer has room for you."></p>
+        </div>
+      </div>
+    </div>
+
+    <div class="bl-group" data-i="4" role="group" aria-roledescription="slide">
+      <header class="bl-fam">
+        <div class="bl-fam-tag" data-zh="血統之五" data-en="Bloodline V"></div>
+        <h3 class="bl-fam-name" data-zh="靈根血統" data-en="The Spirit Root"></h3>
+        <p class="bl-fam-desc" data-zh="不靠血，靠氣。肉身只是暫住的地方"
+           data-en="Not by blood but by breath. The body is only lodging."></p>
+      </header>
+
+      <div class="bl-row">
+        <div class="bl bl-1">
+          <div class="bl-fig"><img src="assets/bl_spiritroot1.webp" alt="" loading="lazy"></div>
+          <div class="bl-stage" data-zh="初階" data-en="First Form"></div>
+          <h3 data-zh="築基期" data-en="Foundation"></h3>
+          <div class="bl-rom" data-zh="Foundation" data-en="築基期"></div>
+          <p data-zh="經脈自行，氣可離體三寸。你開始聽得見身體裡的聲音。"
+             data-en="The meridians turn by themselves, and the breath can leave the body by three inches. You begin to hear what is inside you."></p>
+        </div>
+        <div class="bl-arrow" aria-hidden="true">&rsaquo;</div>
+        <div class="bl bl-2">
+          <div class="bl-fig"><img src="assets/bl_spiritroot2.webp" alt="" loading="lazy"></div>
+          <div class="bl-stage" data-zh="中階" data-en="Second Form"></div>
+          <h3 class="bl-unknown" data-zh="???" data-en="???"></h3>
+          <div class="bl-rom" data-zh="" data-en=""></div>
+          <p data-zh="腹中另生一人，替你睜眼。"
+             data-en="A second self takes shape within, and opens its eyes for you."></p>
+        </div>
+        <div class="bl-arrow" aria-hidden="true">&rsaquo;</div>
+        <div class="bl bl-3">
+          <div class="bl-fig"><img src="assets/bl_spiritroot3.webp" alt="" loading="lazy"></div>
+          <div class="bl-stage" data-zh="最終" data-en="Final Form"></div>
+          <h3 class="bl-unknown" data-zh="???" data-en="???"></h3>
+          <div class="bl-rom" data-zh="" data-en=""></div>
+          <p data-zh="形可散為霧，神可離身遠遊。"
+             data-en="The form scatters into mist; the spirit walks far from the body."></p>
+        </div>
+      </div>
+    </div>
+
+    <div class="bl-group" data-i="5" role="group" aria-roledescription="slide">
+      <header class="bl-fam">
+        <div class="bl-fam-tag" data-zh="血統之六" data-en="Bloodline VI"></div>
+        <h3 class="bl-fam-name" data-zh="雲龍血統" data-en="The Cloud Dragon Line"></h3>
+        <p class="bl-fam-desc" data-zh="水認得你，雲也認得。等一場雨，等成一條龍"
+           data-en="The water knows you, and so do the clouds. You wait for a rain, and the waiting makes a dragon."></p>
+      </header>
+
+      <div class="bl-row">
+        <div class="bl bl-1">
+          <div class="bl-fig"><img src="assets/bl_cloudborn1.webp" alt="" loading="lazy"></div>
+          <div class="bl-stage" data-zh="初階" data-en="First Form"></div>
+          <h3 data-zh="蛟人" data-en="Jiao"></h3>
+          <div class="bl-rom" data-zh="Jiao" data-en="蛟人"></div>
+          <p data-zh="鱗生肘腋，能引水為刃。從此水淹不死你。"
+             data-en="Scales rise along the arms, and water bends into a blade. Water can no longer drown you."></p>
+        </div>
+        <div class="bl-arrow" aria-hidden="true">&rsaquo;</div>
+        <div class="bl bl-2">
+          <div class="bl-fig"><img src="assets/bl_cloudborn2.webp" alt="" loading="lazy"></div>
+          <div class="bl-stage" data-zh="中階" data-en="Second Form"></div>
+          <h3 class="bl-unknown" data-zh="???" data-en="???"></h3>
+          <div class="bl-rom" data-zh="" data-en=""></div>
+          <p data-zh="掌心自生青燄，照得見水底。"
+             data-en="A green flame lights in the palm, bright enough to show the riverbed."></p>
+        </div>
+        <div class="bl-arrow" aria-hidden="true">&rsaquo;</div>
+        <div class="bl bl-3">
+          <div class="bl-fig"><img src="assets/bl_cloudborn3.webp" alt="" loading="lazy"></div>
+          <div class="bl-stage" data-zh="最終" data-en="Final Form"></div>
+          <h3 class="bl-unknown" data-zh="???" data-en="???"></h3>
+          <div class="bl-rom" data-zh="" data-en=""></div>
+          <p data-zh="振袖則風起，行處雲自相隨。"
+             data-en="A shake of the sleeve raises wind; wherever it goes, the clouds go too."></p>
+        </div>
+      </div>
+    </div>
+
+    <div class="bl-group" data-i="6" role="group" aria-roledescription="slide">
+      <header class="bl-fam">
+        <div class="bl-fam-tag" data-zh="血統之七" data-en="Bloodline VII"></div>
+        <h3 class="bl-fam-name" data-zh="熾龍血統" data-en="The Blaze Line"></h3>
+        <p class="bl-fam-desc" data-zh="血熱得能燒穿鎖鏈。燒到最後，連自己一起燒"
+           data-en="Blood hot enough to burn through chains, and in the end hot enough to burn you with them."></p>
+      </header>
+
+      <div class="bl-row">
+        <div class="bl bl-1">
+          <div class="bl-fig"><img src="assets/bl_blazeborn1.webp" alt="" loading="lazy"></div>
+          <div class="bl-stage" data-zh="初階" data-en="First Form"></div>
+          <h3 data-zh="龍奴" data-en="Thrall"></h3>
+          <div class="bl-rom" data-zh="Thrall" data-en="龍奴"></div>
+          <p data-zh="血熱如炭，縛身之物自行崩裂。鎖開始鏽了。"
+             data-en="Blood like coals; whatever binds you cracks on its own. The chain has begun to rust."></p>
+        </div>
+        <div class="bl-arrow" aria-hidden="true">&rsaquo;</div>
+        <div class="bl bl-2">
+          <div class="bl-fig"><img src="assets/bl_blazeborn2.webp" alt="" loading="lazy"></div>
+          <div class="bl-stage" data-zh="中階" data-en="Second Form"></div>
+          <h3 class="bl-unknown" data-zh="???" data-en="???"></h3>
+          <div class="bl-rom" data-zh="" data-en=""></div>
+          <p data-zh="背生雙翼，鱗下藏火。"
+             data-en="Wings open at the back, and fire waits beneath the scales."></p>
+        </div>
+        <div class="bl-arrow" aria-hidden="true">&rsaquo;</div>
+        <div class="bl bl-3">
+          <div class="bl-fig"><img src="assets/bl_blazeborn3.webp" alt="" loading="lazy"></div>
+          <div class="bl-stage" data-zh="最終" data-en="Final Form"></div>
+          <h3 class="bl-unknown" data-zh="???" data-en="???"></h3>
+          <div class="bl-rom" data-zh="" data-en=""></div>
+          <p data-zh="所踏之地成焦土，吐息可熔金鐵。"
+             data-en="Where it walks the ground turns to ash, and its breath melts iron."></p>
+        </div>
+      </div>
+    </div>
+
+    <div class="bl-group" data-i="7" role="group" aria-roledescription="slide">
+      <header class="bl-fam">
+        <div class="bl-fam-tag" data-zh="血統之八" data-en="Bloodline VIII"></div>
+        <h3 class="bl-fam-name" data-zh="蟲族血統" data-en="The Swarm Line"></h3>
+        <p class="bl-fam-desc" data-zh="這副身體不再只屬於你。牠們住進來，然後開始叫你"
+           data-en="This body is no longer only yours. They move in, and then they start calling you."></p>
+      </header>
+
+      <div class="bl-row">
+        <div class="bl bl-1">
+          <div class="bl-fig"><img src="assets/bl_swarmborn1.webp" alt="" loading="lazy"></div>
+          <div class="bl-stage" data-zh="初階" data-en="First Form"></div>
+          <h3 data-zh="寄生體" data-en="Parasite"></h3>
+          <div class="bl-rom" data-zh="Parasite" data-en="寄生體"></div>
+          <p data-zh="皮下有物蠕動，痛覺漸失。你分不清是你在動，還是牠。"
+             data-en="Something stirs beneath the skin as the pain fades. You can no longer tell whether you are moving, or it is."></p>
+        </div>
+        <div class="bl-arrow" aria-hidden="true">&rsaquo;</div>
+        <div class="bl bl-2">
+          <div class="bl-fig"><img src="assets/bl_swarmborn2.webp" alt="" loading="lazy"></div>
+          <div class="bl-stage" data-zh="中階" data-en="Second Form"></div>
+          <h3 class="bl-unknown" data-zh="???" data-en="???"></h3>
+          <div class="bl-rom" data-zh="" data-en=""></div>
+          <p data-zh="肢節生刃，聞得出血的方向。"
+             data-en="Blades grow from the joints, and it can smell which way the blood ran."></p>
+        </div>
+        <div class="bl-arrow" aria-hidden="true">&rsaquo;</div>
+        <div class="bl bl-3">
+          <div class="bl-fig"><img src="assets/bl_swarmborn3.webp" alt="" loading="lazy"></div>
+          <div class="bl-stage" data-zh="最終" data-en="Final Form"></div>
+          <h3 class="bl-unknown" data-zh="???" data-en="???"></h3>
+          <div class="bl-rom" data-zh="" data-en=""></div>
+          <p data-zh="萬蟲聞召而至，血肉皆可為巢。"
+             data-en="Ten thousand answer the call; any flesh will do for a nest."></p>
+        </div>
+      </div>
+    </div>
+   </div>
+
+   <div class="bl-nav">
+     <button id="blPrev" type="button" aria-label="上一條血統">&lsaquo;</button>
+     <div class="bl-dots" id="blDots" role="tablist"></div>
+     <button id="blNext" type="button" aria-label="下一條血統">&rsaquo;</button>
+   </div>
+   <p class="whint" data-zh="共八條血統，左右切換"
+      data-en="Eight bloodlines. Use the arrows to browse."></p>
   </div>
 </section>
 
@@ -682,6 +975,49 @@ const io = new IntersectionObserver((es)=>{
   es.forEach(e => { if (e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
 }, { threshold: 0.14 });
 document.querySelectorAll('.rv').forEach(el => io.observe(el));
+
+/* ---- 血統輪播 ---- */
+const BL_GROUPS = [...document.querySelectorAll('#blDeck .bl-group')];
+const BL_DOTS   = document.getElementById('blDots');
+let blIdx = 0;
+
+BL_GROUPS.forEach((g, i) => {
+  const d = document.createElement('button');
+  d.type = 'button';
+  d.setAttribute('role', 'tab');
+  d.setAttribute('aria-label', String(i + 1));
+  d.onclick = () => setBl(i);
+  BL_DOTS.appendChild(d);
+});
+
+function setBl(i){
+  blIdx = (i + BL_GROUPS.length) % BL_GROUPS.length;
+  BL_GROUPS.forEach((g, k) => g.classList.toggle('on', k === blIdx));
+  [...BL_DOTS.children].forEach((d, k) => {
+    d.classList.toggle('on', k === blIdx);
+    d.setAttribute('aria-selected', k === blIdx ? 'true' : 'false');
+  });
+}
+setBl(0);
+document.getElementById('blPrev').onclick = () => setBl(blIdx - 1);
+document.getElementById('blNext').onclick = () => setBl(blIdx + 1);
+
+/* 手機沒有左右按鈕以外的操作習慣，補一個水平滑動；
+   垂直位移比水平大就當成在捲頁面，不攔截 */
+(() => {
+  const deck = document.getElementById('blDeck');
+  let x0 = null, y0 = null;
+  deck.addEventListener('touchstart', e => {
+    x0 = e.changedTouches[0].clientX; y0 = e.changedTouches[0].clientY;
+  }, {passive:true});
+  deck.addEventListener('touchend', e => {
+    if (x0 === null) return;
+    const dx = e.changedTouches[0].clientX - x0;
+    const dy = e.changedTouches[0].clientY - y0;
+    if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy)) setBl(blIdx + (dx < 0 ? 1 : -1));
+    x0 = y0 = null;
+  }, {passive:true});
+})();
 
 /* ---- 武器卷軸 ---- */
 const RAIL = document.getElementById('wrail');

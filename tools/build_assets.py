@@ -116,11 +116,51 @@ BLOOD_QUALITY = 86
 # 之後要公開就把 True 改成 False，重跑 npm run assets——輸出檔名不變，
 # 所以 index.html 的 <img src> 不用動。
 BLOOD_MAP = {
-    # 資料夾名稱: [(來源檔名（不含副檔名）, 輸出名, 是否隱藏), ...]
-    "殭屍": [
-        ("1.殭屍", "bl_zombie1", False),
-        ("2.毛殭", "bl_zombie2", True),
-        ("3.旱魃", "bl_zombie3", True),
+    # 資料夾名稱（＝表A BloodlineSeriesTable 的系列 Key）:
+    #   [(來源檔名（不含副檔名）, 輸出名, 是否隱藏), ...]  ← 順序＝初階／中階／最終
+    #
+    # 來源是遊戲 repo 每個血統 idle 的第一幀（256×256 透明底），
+    # 由 tools/sync_bloodline.py 複製進來；要更新外型就重跑那支腳本。
+    # ⚠ 舊的「殭屍/」資料夾（500px 像素版立繪）刻意留著沒刪，但網站已不再使用它。
+    "Jiangshi": [
+        ("1_Jiangshi",      "bl_jiangshi1",   False),
+        ("2_Maojiang",      "bl_jiangshi2",   True),
+        ("3_Hanba",         "bl_jiangshi3",   True),
+    ],
+    "Bloodborn": [
+        ("1_Bloodseeker",   "bl_bloodborn1",  False),
+        ("2_CrimsonCount",  "bl_bloodborn2",  True),
+        ("3_Cain",          "bl_bloodborn3",  True),
+    ],
+    "Feralborn": [
+        ("1_Werewolf",      "bl_feralborn1",  False),
+        ("2_Moonwatcher",   "bl_feralborn2",  True),
+        ("3_Fenrir",        "bl_feralborn3",  True),
+    ],
+    "Gaiaborn": [
+        ("1_Gargoyle",      "bl_gaiaborn1",   False),
+        ("2_MountainGiant", "bl_gaiaborn2",   True),
+        ("3_Titan",         "bl_gaiaborn3",   True),
+    ],
+    "SpiritRoot": [
+        ("1_Foundation",    "bl_spiritroot1", False),
+        ("2_NascentSoul",   "bl_spiritroot2", True),
+        ("3_DivineForm",    "bl_spiritroot3", True),
+    ],
+    "Cloudborn": [
+        ("1_Jiao",          "bl_cloudborn1",  False),
+        ("2_Chiwen",        "bl_cloudborn2",  True),
+        ("3_Yinglong",      "bl_cloudborn3",  True),
+    ],
+    "Blazeborn": [
+        ("1_Thrall",        "bl_blazeborn1",  False),
+        ("2_Fafnir",        "bl_blazeborn2",  True),
+        ("3_Nidhogg",       "bl_blazeborn3",  True),
+    ],
+    "Swarmborn": [
+        ("1_Parasite",      "bl_swarmborn1",  False),
+        ("2_Ravager",       "bl_swarmborn2",  True),
+        ("3_SwarmEmperor",  "bl_swarmborn3",  True),
     ],
 }
 
@@ -173,7 +213,11 @@ def build_bloodlines():
             im = Image.open(src).convert("RGBA")
             im = im.crop(im.getbbox())          # 去掉四周多餘的透明區
             w = round(im.width * BLOOD_HEIGHT / im.height)
-            im = im.resize((w, BLOOD_HEIGHT), Image.LANCZOS)
+            # 來源是 256px 的遊戲序列幀，放大一律用 NEAREST：
+            # LANCZOS 會把像素邊插值成一團糊，NEAREST 保住硬邊、看起來像遊戲裡那樣。
+            # （來源比輸出還大時才用 LANCZOS 縮，縮小時它比較乾淨。）
+            im = im.resize((w, BLOOD_HEIGHT),
+                           Image.NEAREST if im.height < BLOOD_HEIGHT else Image.LANCZOS)
             if hidden:
                 im = to_silhouette(im)
             dst = os.path.join(OUT_DIR, out_name + ".webp")
